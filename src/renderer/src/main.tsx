@@ -1,5 +1,10 @@
 import './assets/main.css'
 
+import '@fontsource/nunito/400.css'
+import '@fontsource/nunito/500.css'
+import '@fontsource/nunito/600.css'
+import '@fontsource/nunito/700.css'
+
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App'

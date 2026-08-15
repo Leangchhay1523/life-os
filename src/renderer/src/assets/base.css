@@ -1,67 +1,153 @@
-:root {
-  --ev-c-white: #ffffff;
-  --ev-c-white-soft: #f8f8f8;
-  --ev-c-white-mute: #f2f2f2;
+@import 'tailwindcss';
 
-  --ev-c-black: #1b1b1f;
-  --ev-c-black-soft: #222222;
-  --ev-c-black-mute: #282828;
+@custom-variant dark (&:where(.dark, .dark *));
 
-  --ev-c-gray-1: #515c67;
-  --ev-c-gray-2: #414853;
-  --ev-c-gray-3: #32363f;
+/* =========================================
+   LifeOS Design Tokens
+   ========================================= */
 
-  --ev-c-text-1: rgba(255, 255, 245, 0.86);
-  --ev-c-text-2: rgba(235, 235, 245, 0.6);
-  --ev-c-text-3: rgba(235, 235, 245, 0.38);
+@theme {
+  /* Typography */
+  --font-sans: 'Nunito', ui-sans-serif, system-ui, sans-serif;
 
-  --ev-button-alt-border: transparent;
-  --ev-button-alt-text: var(--ev-c-text-1);
-  --ev-button-alt-bg: var(--ev-c-gray-3);
-  --ev-button-alt-hover-border: transparent;
-  --ev-button-alt-hover-text: var(--ev-c-text-1);
-  --ev-button-alt-hover-bg: var(--ev-c-gray-2);
+  /* LifeOS colors */
+  --color-background: var(--life-background);
+  --color-surface: var(--life-surface);
+  --color-card: var(--life-card);
+
+  --color-foreground: var(--life-foreground);
+  --color-muted: var(--life-muted);
+  --color-subtle: var(--life-subtle);
+
+  --color-border: var(--life-border);
+  --color-border-hover: var(--life-border-hover);
+
+  --color-primary: var(--life-primary);
+  --color-primary-hover: var(--life-primary-hover);
+  --color-primary-light: var(--life-primary-light);
+  --color-primary-foreground: var(--life-primary-foreground);
+
+  --color-success: var(--life-success);
+  --color-warning: var(--life-warning);
+  --color-danger: var(--life-danger);
+
+  /* Moderate rounded corners */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.625rem;
+  --radius-lg: 0.875rem;
+  --radius-xl: 1rem;
+
+  /* Minimal shadows */
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.03);
+  --shadow-card-hover: 0 2px 6px rgb(0 0 0 / 0.05);
 }
 
-:root {
-  --color-background: var(--ev-c-black);
-  --color-background-soft: var(--ev-c-black-soft);
-  --color-background-mute: var(--ev-c-black-mute);
+/* =========================================
+   Light Theme
+   ========================================= */
 
-  --color-text: var(--ev-c-text-1);
+:root {
+  color-scheme: light;
+
+  /* Background */
+  --life-background: #fafaf8;
+  --life-surface: #f5f5f2;
+  --life-card: #ffffff;
+
+  /* Text */
+  --life-foreground: #2f3437;
+  --life-muted: #687178;
+  --life-subtle: #9aa1a6;
+
+  /* Borders */
+  --life-border: #e7e7e3;
+  --life-border-hover: #d7d8d4;
+
+  /* Soft Blue */
+  --life-primary: #5b8fc9;
+  --life-primary-hover: #4d82bd;
+  --life-primary-light: #eaf2fb;
+  --life-primary-foreground: #ffffff;
+
+  /* Status */
+  --life-success: #5f9f78;
+  --life-warning: #c9954c;
+  --life-danger: #c96b6b;
 }
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
+/* =========================================
+   Dark Theme
+   ========================================= */
+
+.dark {
+  color-scheme: dark;
+
+  /* Soft charcoal */
+  --life-background: #18181b;
+  --life-surface: #1d1d20;
+  --life-card: #222225;
+
+  /* Text */
+  --life-foreground: #f2f2f0;
+  --life-muted: #a5a5aa;
+  --life-subtle: #707076;
+
+  /* Borders */
+  --life-border: #303035;
+  --life-border-hover: #3b3b42;
+
+  /* Soft Blue */
+  --life-primary: #6fa0d5;
+  --life-primary-hover: #82afe0;
+  --life-primary-light: #26384d;
+  --life-primary-foreground: #ffffff;
+
+  /* Status */
+  --life-success: #70b68c;
+  --life-warning: #d5a85f;
+  --life-danger: #dc7b7b;
+}
+
+/* =========================================
+   Global
+   ========================================= */
+
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
   margin: 0;
-  font-weight: normal;
-}
-
-ul {
-  list-style: none;
 }
 
 body {
-  min-height: 100vh;
-  color: var(--color-text);
-  background: var(--color-background);
-  line-height: 1.6;
-  font-family:
-    Inter,
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    Roboto,
-    Oxygen,
-    Ubuntu,
-    Cantarell,
-    'Fira Sans',
-    'Droid Sans',
-    'Helvetica Neue',
-    sans-serif;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  background: var(--life-background);
+  color: var(--life-foreground);
+  font-family: var(--font-sans);
+
+  transition:
+    background-color 180ms ease,
+    color 180ms ease;
+}
+
+/* =========================================
+   Scrollbar
+   ========================================= */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--life-border-hover);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--life-muted);
 }
