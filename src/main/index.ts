@@ -2,6 +2,11 @@ import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
+import Store from 'electron-store'
+
+const store = new Store({
+  name: app.isPackaged ? 'config' : 'config-dev'
+})
 
 let mainWindow: BrowserWindow | null = null
 let popupWindow: BrowserWindow | null = null
@@ -106,6 +111,15 @@ app.whenReady().then(() => {
     if (mainWindow) {
       mainWindow.webContents.send('water-action-reply', actionType)
     }
+  })
+
+  // Electron-store handlers
+  ipcMain.handle('store-get', (_, key: string) => {
+    return store.get(key)
+  })
+
+  ipcMain.handle('store-set', (_, key: string, val: unknown) => {
+    store.set(key, val)
   })
 
   createWindow()

@@ -89,7 +89,13 @@ function App(): React.JSX.Element {
 
       <main className="flex-1 overflow-hidden relative flex flex-col">
         <div
-          className={`flex-1 flex flex-col min-h-0 ${activeSection === 'resume-sections' ? 'p-6 w-full' : 'p-8 max-w-4xl w-full mx-auto overflow-y-auto'}`}
+          className={`flex-1 flex flex-col min-h-0 ${
+            activeSection === 'resume-sections'
+              ? 'p-6 w-full'
+              : activeSection === 'pomodoro'
+                ? 'p-8 max-w-4xl w-full mx-auto'
+                : 'p-8 max-w-4xl w-full mx-auto overflow-y-auto'
+          }`}
         >
           <header className="mb-6 shrink-0">
             <h1 className="text-3xl font-bold tracking-tight">{getSectionTitle()}</h1>

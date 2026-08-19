@@ -3,6 +3,9 @@ import { ElectronAPI } from '@electron-toolkit/preload'
 declare global {
   interface Window {
     electron: ElectronAPI
-    api: unknown
+    api: {
+      storeGet: (key: string) => Promise<unknown>
+      storeSet: (key: string, val: unknown) => Promise<void>
+    }
   }
 }
