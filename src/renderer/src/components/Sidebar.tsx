@@ -1,6 +1,6 @@
 import { FaBriefcase, FaHeartbeat, FaLeaf, FaChevronDown } from 'react-icons/fa'
 import { useState } from 'react'
-import electronLogo from '../assets/electron.svg'
+import electronLogo from '../assets/icon.svg'
 
 interface SidebarProps {
   activeSection: string
