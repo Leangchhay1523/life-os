@@ -1,4 +1,4 @@
-import { FaBriefcase, FaHeartbeat, FaLeaf, FaChevronDown, FaChevronRight } from 'react-icons/fa'
+import { FaBriefcase, FaHeartbeat, FaLeaf, FaChevronDown } from 'react-icons/fa'
 import { useState } from 'react'
 import electronLogo from '../assets/electron.svg'
 
@@ -7,6 +7,36 @@ interface SidebarProps {
   setActiveSection: (section: string) => void
 }
 
+const navItems = [
+  {
+    id: 'productivity',
+    label: 'Productivity',
+    icon: <FaBriefcase className="w-4 h-4 flex-shrink-0" />,
+    color: '#6fa0d5',
+    subItems: [
+      { id: 'pomodoro', label: 'Pomodoro Timer' },
+      { id: 'water-reminder', label: 'Water Reminder' }
+    ]
+  },
+  {
+    id: 'health-fitness',
+    label: 'Health & Fitness',
+    icon: <FaHeartbeat className="w-4 h-4 flex-shrink-0" />,
+    color: '#dc7b7b',
+    subItems: [] as { id: string; label: string }[]
+  },
+  {
+    id: 'life',
+    label: 'Life',
+    icon: <FaLeaf className="w-4 h-4 flex-shrink-0" />,
+    color: '#70b68c',
+    subItems: [
+      { id: 'resume-overview', label: 'Resume Overview' },
+      { id: 'resume-sections', label: 'Resume Sections' }
+    ]
+  }
+]
+
 export default function Sidebar({ activeSection, setActiveSection }: SidebarProps) {
   const [expanded, setExpanded] = useState<Record<string, boolean>>({
     productivity: true,
@@ -14,110 +44,112 @@ export default function Sidebar({ activeSection, setActiveSection }: SidebarProp
     life: true
   })
 
-  const toggleExpand = (id: string, e: React.MouseEvent) => {
-    e.stopPropagation()
-    setExpanded((prev) => ({ ...prev, [id]: !prev[id] }))
-  }
+  const toggle = (id: string) => setExpanded((prev) => ({ ...prev, [id]: !prev[id] }))
 
-  const navItems = [
-    {
-      id: 'productivity',
-      label: 'Productivity',
-      icon: <FaBriefcase className="w-4 h-4 flex-shrink-0" />,
-      subItems: [
-        { id: 'pomodoro', label: 'Pomodoro Timer' },
-        { id: 'water-reminder', label: 'Water Reminder' }
-      ]
-    },
-    {
-      id: 'health-fitness',
-      label: 'Health & Fitness',
-      icon: <FaHeartbeat className="w-4 h-4 flex-shrink-0" />
-    },
-    {
-      id: 'life',
-      label: 'Life',
-      icon: <FaLeaf className="w-4 h-4 flex-shrink-0" />,
-      subItems: [
-        { id: 'resume', label: 'Resume Overview' },
-        { id: 'resume-experience', label: 'Experience' },
-        { id: 'resume-education', label: 'Education' },
-        { id: 'resume-projects', label: 'Projects' }
-      ]
-    }
-  ]
+  const isChildActive = (item: (typeof navItems)[0]) =>
+    item.subItems.some((s) => s.id === activeSection)
 
   return (
-    <div className="w-64 h-full bg-surface border-r border-border shrink-0 flex flex-col transition-colors">
+    <div className="w-56 h-full bg-surface border-r border-border shrink-0 flex flex-col transition-colors">
       {/* App Header */}
-      <div className="h-16 flex items-center px-6 border-b border-border">
-        <img src={electronLogo} alt="Life OS" className="w-8 h-8 mr-3 drop-shadow-sm" />
-        <span className="font-bold text-xl tracking-tight text-foreground">Life OS</span>
+      <div className="h-14 flex items-center px-5 border-b border-border gap-3 shrink-0">
+        <img src={electronLogo} alt="Life OS" className="w-7 h-7 drop-shadow-sm" />
+        <span className="font-bold text-lg tracking-tight text-foreground">Life OS</span>
       </div>
 
-      {/* Navigation Menu */}
-      <div className="flex-1 overflow-y-auto py-6 px-3 space-y-1">
-        <div className="px-3 mb-2 text-xs font-semibold text-muted uppercase tracking-wider">
-          Menu
-        </div>
-        {navItems.map((item) => (
-          <div key={item.id} className="mb-1">
-            <button
-              onClick={() => {
-                setActiveSection(item.id)
-                setExpanded((prev) => ({ ...prev, [item.id]: true }))
-              }}
-              className={`w-full flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 group ${
-                activeSection === item.id && !item.subItems
-                  ? 'bg-primary text-primary-foreground shadow-sm'
-                  : 'text-muted hover:bg-black/5 dark:hover:bg-white/5 hover:text-foreground'
-              }`}
-            >
-              <span
-                className={`${activeSection === item.id && !item.subItems ? 'text-primary-foreground' : 'text-subtle group-hover:text-foreground'}`}
-              >
-                {item.icon}
-              </span>
-              <span className="ml-3 flex-1 text-left">{item.label}</span>
+      {/* Navigation */}
+      <div className="flex-1 overflow-y-auto py-4 px-2 space-y-0.5">
+        {navItems.map((item) => {
+          const hasChildren = item.subItems.length > 0
+          const isOpen = expanded[item.id]
+          const childActive = isChildActive(item)
+          const selfActive = activeSection === item.id && !hasChildren
 
-              {item.subItems && (
-                <div
-                  onClick={(e) => toggleExpand(item.id, e)}
-                  className="p-1 rounded-md hover:bg-black/10 dark:hover:bg-white/10"
+          return (
+            <div key={item.id}>
+              {/* Category row */}
+              <button
+                onClick={() => {
+                  if (hasChildren) {
+                    toggle(item.id)
+                    // Also navigate to first child if none active yet
+                    if (!childActive && !isOpen) {
+                      setActiveSection(item.subItems[0]?.id ?? item.id)
+                    }
+                  } else {
+                    setActiveSection(item.id)
+                  }
+                }}
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 group select-none"
+                style={{
+                  background: selfActive || childActive ? `${item.color}18` : 'transparent',
+                  color: selfActive || childActive ? item.color : 'var(--color-muted, #888)'
+                }}
+              >
+                {/* Icon bubble */}
+                <span
+                  className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 transition-all duration-200"
+                  style={{
+                    background:
+                      selfActive || childActive
+                        ? `${item.color}22`
+                        : 'var(--color-surface-2, rgba(128,128,128,0.08))',
+                    color: selfActive || childActive ? item.color : 'var(--color-subtle, #aaa)'
+                  }}
                 >
-                  {expanded[item.id] ? (
-                    <FaChevronDown className="w-3 h-3 opacity-50" />
-                  ) : (
-                    <FaChevronRight className="w-3 h-3 opacity-50" />
-                  )}
+                  {item.icon}
+                </span>
+
+                <span className="flex-1 text-left truncate">{item.label}</span>
+
+                {hasChildren && (
+                  <FaChevronDown
+                    className="w-3 h-3 shrink-0 transition-transform duration-200"
+                    style={{
+                      transform: isOpen ? 'rotate(0deg)' : 'rotate(-90deg)',
+                      opacity: 0.5
+                    }}
+                  />
+                )}
+              </button>
+
+              {/* Sub items — collapsible with CSS height trick */}
+              {hasChildren && (
+                <div
+                  className="overflow-hidden transition-all duration-200"
+                  style={{
+                    maxHeight: isOpen ? `${item.subItems.length * 44}px` : '0px',
+                    opacity: isOpen ? 1 : 0
+                  }}
+                >
+                  <div className="ml-4 pl-3 border-l border-border/50 flex flex-col gap-0.5 py-1">
+                    {item.subItems.map((sub) => {
+                      const isActive = activeSection === sub.id
+                      return (
+                        <button
+                          key={sub.id}
+                          onClick={() => setActiveSection(sub.id)}
+                          className="w-full text-left px-3 py-2 rounded-lg text-sm transition-all duration-150"
+                          style={{
+                            background: isActive ? `${item.color}15` : 'transparent',
+                            color: isActive ? item.color : 'var(--color-muted, #888)',
+                            fontWeight: isActive ? 600 : 400
+                          }}
+                        >
+                          {sub.label}
+                        </button>
+                      )
+                    })}
+                  </div>
                 </div>
               )}
-            </button>
-
-            {/* Sub Items */}
-            {item.subItems && expanded[item.id] && (
-              <div className="mt-1 ml-4 pl-3 border-l border-border/60 flex flex-col gap-0.5">
-                {item.subItems.map((subItem) => (
-                  <button
-                    key={subItem.id}
-                    onClick={() => setActiveSection(subItem.id)}
-                    className={`w-full text-left px-3 py-1.5 rounded-md text-sm transition-all duration-200 ${
-                      activeSection === subItem.id
-                        ? 'bg-primary/10 text-primary font-medium'
-                        : 'text-muted hover:bg-black/5 dark:hover:bg-white/5 hover:text-foreground'
-                    }`}
-                  >
-                    {subItem.label}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        ))}
+            </div>
+          )
+        })}
       </div>
 
-      {/* Footer / Settings */}
-      <div className="p-4 border-t border-border">
+      {/* Footer */}
+      <div className="p-3 border-t border-border shrink-0">
         <div className="text-xs text-subtle text-center">Life OS v1.0.0</div>
       </div>
     </div>
