@@ -2,8 +2,9 @@ import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
-import Store from 'electron-store'
+import StoreModule from 'electron-store'
 
+const Store = (StoreModule as unknown as { default: typeof StoreModule }).default || StoreModule
 const store = new Store({
   name: app.isPackaged ? 'config' : 'config-dev'
 })

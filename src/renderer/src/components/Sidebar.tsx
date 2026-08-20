@@ -32,7 +32,8 @@ const navItems = [
     color: '#70b68c',
     subItems: [
       { id: 'resume-overview', label: 'Resume Overview' },
-      { id: 'resume-sections', label: 'Resume Sections' }
+      { id: 'resume-sections', label: 'Resume Sections' },
+      { id: 'milestones', label: 'Milestones (Big Goals)' }
     ]
   }
 ]
