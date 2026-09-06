@@ -1,5 +1,8 @@
 import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
+import { exec } from 'child_process'
+import * as fs from 'fs'
+import * as os from 'os'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import StoreModule from 'electron-store'
@@ -121,6 +124,36 @@ app.whenReady().then(() => {
 
   ipcMain.handle('store-set', (_, key: string, val: unknown) => {
     store.set(key, val)
+  })
+
+  ipcMain.handle('compile-latex', async (_, latexCode: string) => {
+    return new Promise((resolve) => {
+      const tempDir = fs.mkdtempSync(join(os.tmpdir(), 'resume-latex-'))
+      const texFile = join(tempDir, 'resume.tex')
+      fs.writeFileSync(texFile, latexCode)
+      exec(
+        `pdflatex -interaction=nonstopmode -output-directory="${tempDir}" "${texFile}"`,
+        (error, stdout) => {
+          const pdfFile = join(tempDir, 'resume.pdf')
+          if (fs.existsSync(pdfFile)) {
+            const pdfBuffer = fs.readFileSync(pdfFile)
+            const base64 = pdfBuffer.toString('base64')
+            resolve({ success: true, base64 })
+          } else {
+            resolve({ success: false, error: error?.message || 'Failed to compile', stdout })
+          }
+        }
+      )
+    })
+  })
+
+  ipcMain.handle('read-template', () => {
+    try {
+      const templatePath = join(__dirname, '../../resume.tex')
+      return fs.readFileSync(templatePath, 'utf-8')
+    } catch {
+      return ''
+    }
   })
 
   createWindow()

@@ -33,6 +33,7 @@ const navItems = [
     subItems: [
       { id: 'resume-overview', label: 'Resume Overview' },
       { id: 'resume-sections', label: 'Resume Sections' },
+      { id: 'resume-builder', label: 'Resume Builder' },
       { id: 'milestones', label: 'Milestones (Big Goals)' }
     ]
   }

@@ -823,10 +823,10 @@ export default function ResumeSections() {
 
   // ────────────────────────────────────────────────────────────────────────────
   return (
-    <div className="flex gap-4 min-h-0 flex-1 overflow-hidden">
+    <div className="flex gap-4 min-h-0 flex-1 overflow-hidden p-4">
       {/* ── Left sticky nav ─────────────────────────────────────────────────── */}
-      <aside className="w-40 shrink-0 overflow-y-auto">
-        <div className="sticky top-0 flex flex-col gap-0.5 pt-0.5">
+      <aside className="w-44 shrink-0 overflow-y-auto pl-1">
+        <div className="sticky top-0 flex flex-col gap-0.5 pt-1">
           {NAV_ITEMS.map(({ id, label, icon: Icon, color }) => {
             const isActive = activeNav === id
             const isOpen = quickPanelSection === id

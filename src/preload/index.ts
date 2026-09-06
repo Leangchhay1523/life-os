@@ -4,7 +4,9 @@ import { electronAPI } from '@electron-toolkit/preload'
 // Custom APIs for renderer
 const api = {
   storeGet: (key: string) => ipcRenderer.invoke('store-get', key),
-  storeSet: (key: string, val: unknown) => ipcRenderer.invoke('store-set', key, val)
+  storeSet: (key: string, val: unknown) => ipcRenderer.invoke('store-set', key, val),
+  compileLatex: (code: string) => ipcRenderer.invoke('compile-latex', code),
+  readTemplate: () => ipcRenderer.invoke('read-template')
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

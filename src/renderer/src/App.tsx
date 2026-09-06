@@ -5,6 +5,7 @@ import PomodoroTimer from './components/productivity/PomodoroTimer'
 import WaterReminder from './components/productivity/WaterReminder'
 import ResumeOverview from './components/life/ResumeOverview'
 import ResumeSections from './components/life/ResumeSections'
+import ResumeBuilder from './components/life/ResumeBuilder'
 import Milestones from './components/life/Milestones'
 import { useWaterReminder } from './hooks/useWaterReminder'
 import { FaTint } from 'react-icons/fa'
@@ -62,6 +63,8 @@ function App(): React.JSX.Element {
         return <ResumeOverview />
       case 'resume-sections':
         return <ResumeSections />
+      case 'resume-builder':
+        return <ResumeBuilder />
       case 'milestones':
         return <Milestones />
       default:
@@ -93,21 +96,25 @@ function App(): React.JSX.Element {
       <main className="flex-1 overflow-hidden relative flex flex-col">
         <div
           className={`flex-1 flex flex-col min-h-0 ${
-            activeSection === 'resume-sections' || activeSection === 'milestones'
+            activeSection === 'resume-sections' ||
+            activeSection === 'resume-builder' ||
+            activeSection === 'milestones'
               ? 'p-0 w-full overflow-hidden'
               : activeSection === 'pomodoro'
                 ? 'p-8 max-w-4xl w-full mx-auto'
                 : 'p-8 max-w-4xl w-full mx-auto overflow-y-auto'
           }`}
         >
-          {activeSection !== 'resume-sections' && activeSection !== 'milestones' && (
-            <header className="mb-6 shrink-0">
-              <h1 className="text-3xl font-bold tracking-tight">{getSectionTitle()}</h1>
-              <p className="text-muted mt-2">
-                Manage your {getSectionTitle().toLowerCase()} seamlessly.
-              </p>
-            </header>
-          )}
+          {activeSection !== 'resume-sections' &&
+            activeSection !== 'resume-builder' &&
+            activeSection !== 'milestones' && (
+              <header className="mb-6 shrink-0">
+                <h1 className="text-3xl font-bold tracking-tight">{getSectionTitle()}</h1>
+                <p className="text-muted mt-2">
+                  Manage your {getSectionTitle().toLowerCase()} seamlessly.
+                </p>
+              </header>
+            )}
 
           <div className="flex-1 flex flex-col min-h-0 overflow-hidden">{renderContent()}</div>
         </div>

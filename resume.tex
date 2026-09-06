@@ -1,0 +1,577 @@
+%
+%Academic CV LaTeX Template
+% Author: Dubasi Pavan Kumar
+% LinkedIn: https://www.linkedin.com/in/im-pavankumar/
+% License: MIT
+%
+% For errors, suggestions, or improvements, please contact:
+% Email: pavankumard.pg19.ma@nitp.ac.in
+%
+
+\documentclass[a4paper,11pt]{article}
+
+% Package imports
+\usepackage{latexsym}
+\usepackage{xcolor}
+\usepackage{float}
+\usepackage{ragged2e}
+\usepackage[empty]{fullpage}
+\usepackage{wrapfig}
+\usepackage{lipsum}
+\usepackage{tabularx}
+\usepackage{titlesec}
+\usepackage{geometry}
+\usepackage{marvosym}
+\usepackage{verbatim}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{multicol}
+\usepackage{graphicx}
+\usepackage[scaled]{helvet}
+\renewcommand{\familydefault}{\sfdefault}
+\usepackage[T1]{fontenc}
+\usepackage{fontawesome5}
+\usepackage{ragged2e}
+
+% Color definitions
+\definecolor{darkblue}{RGB}{0,0,139}
+
+% Page layout
+\setlength{\multicolsep}{0pt} 
+\pagestyle{fancy}
+\fancyhf{} % clear all header and footer fields
+\fancyfoot{}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+\geometry{left=1.4cm, top=0.8cm, right=1.2cm, bottom=1cm}
+\setlength{\footskip}{5pt} % Addressing fancyhdr warning
+
+% Hyperlink setup (moved after fancyhdr to address warning)
+\usepackage[hidelinks]{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=darkblue,
+    filecolor=darkblue,
+    urlcolor=darkblue,
+}
+
+% Custom box settings
+\usepackage[most]{tcolorbox}
+\tcbset{
+    frame code={},
+    center title,
+    left=0pt,
+    right=0pt,
+    top=0pt,
+    bottom=0pt,
+    colback=gray!20,
+    colframe=white,
+    width=\dimexpr\textwidth\relax,
+    enlarge left by=-2mm,
+    boxsep=4pt,
+    arc=0pt,outer arc=0pt,
+}
+
+% URL style
+\urlstyle{same}
+
+% Text alignment
+\raggedright
+\setlength{\tabcolsep}{0in}
+
+% Section formatting
+\titleformat{\section}{
+  \vspace{-4pt}\scshape\raggedright\large
+}{}{0em}{}[\color{black}\titlerule \vspace{-7pt}]
+
+% Custom commands
+\newcommand{\resumeItem}[2]{
+  \item{
+    \textbf{#1}{\hspace{0.5mm}#2 \vspace{-0.5mm}}
+  }
+}
+
+\newcommand{\resumePOR}[3]{
+\vspace{0.5mm}\item
+    \begin{tabular*}{0.97\textwidth}[t]{l@{\extracolsep{\fill}}r}
+        \textbf{#1}\hspace{0.3mm}#2 & \textit{\small{#3}} 
+    \end{tabular*}
+    \vspace{-2mm}
+}
+
+\newcommand{\resumeSubheading}[4]{
+\vspace{0.5mm}\item
+\begin{tabular*}{0.98\textwidth}[t]{l@{\extracolsep{\fill}}r}
+    \textbf{#1} & \textit{\footnotesize{#4}} \\
+    \textit{\footnotesize{#3}} & \footnotesize{#2} \\
+\end{tabular*}
+\vspace{-2.4mm}
+}
+
+\newcommand{\resumeProject}[4]{
+\vspace{0.5mm}\item
+    \begin{tabular*}{0.98\textwidth}[t]{l@{\extracolsep{\fill}}r}
+        \textbf{#1} & \textit{\footnotesize{#3}} \\
+        \footnotesize{\textit{#2}} & \footnotesize{#4}
+    \end{tabular*}
+    \vspace{-2.4mm}
+}
+
+\newcommand{\resumeSubItem}[2]{\resumeItem{#1}{#2}\vspace{-4pt}}
+
+\renewcommand{\labelitemi}{$\vcenter{\hbox{\tiny$\bullet$}}$}
+\renewcommand{\labelitemii}{$\vcenter{\hbox{\tiny$\circ$}}$}
+
+\newcommand{\resumeSubHeadingListStart}{\begin{itemize}[leftmargin=*,labelsep=1mm]}
+\newcommand{\resumeHeadingSkillStart}{\begin{itemize}[leftmargin=*,itemsep=1.7mm, rightmargin=2ex]}
+\newcommand{\resumeItemListStart}{\begin{itemize}[leftmargin=*,labelsep=1mm,itemsep=0.5mm]}
+
+\newcommand{\resumeSubHeadingListEnd}{\end{itemize}\vspace{2mm}}
+\newcommand{\resumeHeadingSkillEnd}{\end{itemize}\vspace{-2mm}}
+\newcommand{\resumeItemListEnd}{\end{itemize}\vspace{-2mm}}
+\newcommand{\cvsection}[1]{%
+\vspace{2mm}
+\begin{tcolorbox}
+    \textbf{\large #1}
+\end{tcolorbox}
+    \vspace{-4mm}
+}
+
+\newcolumntype{L}{>{\raggedright\arraybackslash}X}%
+\newcolumntype{R}{>{\raggedleft\arraybackslash}X}%
+\newcolumntype{C}{>{\centering\arraybackslash}X}%
+
+% Commands for icon sizing and positioning
+\newcommand{\socialicon}[1]{\raisebox{-0.05em}{\resizebox{!}{1em}{#1}}}
+\newcommand{\ieeeicon}[1]{\raisebox{-0.3em}{\resizebox{!}{1.3em}{#1}}}
+
+% Font options
+\newcommand{\headerfonti}{\fontfamily{phv}\selectfont} % Helvetica-like (similar to Arial/Calibri)
+\newcommand{\headerfontii}{\fontfamily{ptm}\selectfont} % Times-like (similar to Times New Roman)
+\newcommand{\headerfontiii}{\fontfamily{ppl}\selectfont} % Palatino (elegant serif)
+\newcommand{\headerfontiv}{\fontfamily{pbk}\selectfont} % Bookman (readable serif)
+\newcommand{\headerfontv}{\fontfamily{pag}\selectfont} % Avant Garde-like (similar to Trebuchet MS)
+\newcommand{\headerfontvi}{\fontfamily{cmss}\selectfont} % Computer Modern Sans Serif
+\newcommand{\headerfontvii}{\fontfamily{qhv}\selectfont} % Quasi-Helvetica (another Arial/Calibri alternative)
+\newcommand{\headerfontviii}{\fontfamily{qpl}\selectfont} % Quasi-Palatino (another elegant serif option)
+\newcommand{\headerfontix}{\fontfamily{qtm}\selectfont} % Quasi-Times (another Times New Roman alternative)
+\newcommand{\headerfontx}{\fontfamily{bch}\selectfont} % Charter (clean serif font)
+
+\begin{document}
+% \headerfontiii
+\headerfont
+
+% % Header
+% \begin{center}
+%     {\Huge\textbf{SONG KIMLEANGCHHAY}}
+% \end{center}
+% \vspace{-4mm}
+
+% % ============== Add ============= Position
+% % \begin{center}
+% %     \large{\textbf{Junior of Computer Science}}
+% % \end{center}
+% \vspace{-4mm}
+% \begin{center}
+%     \Large{Data Science Student}
+% \end{center}
+% \vspace{-4mm}
+
+% \begin{center}
+%     \small{
+%     % \href{tel:092271285}{+855 92 271 285} | \href{mailto:kimleangchhay.song.321@gmail.com}{kimleangchhay.song.321@gmail.com} | 
+%     % \href{https://leangchhayportfolio.vercel.app/}{Portfolio}
+
+%     \socialicon{\faPhone} \& \socialicon{\faTelegram} \href{tel:+85592271285}{+855 92 271 285} | 
+%     \socialicon{\faEnvelope} \href{mailto:kimleangchhay.song.321@gmail.com}{kimleangchhay.song.321@gmail.com} | 
+%     \socialicon{\faGlobe} \href{https://leangchhayportfolio.vercel.app/}{Personal Portfolio} | 
+%     }
+% \end{center}
+% \vspace{-6mm}
+
+% \begin{center}
+%     \small{
+%     \socialicon{\faLinkedin} \href{https://www.linkedin.com/in/leangchhay1523/}{leangchhay1523} | 
+%     \socialicon{\faGithub} \href{https://github.com/leangchhay1523}{leangchhay1523} | 
+%     % \socialicon{\faTwitter} \href{https://twitter.com/leangchhay1523}{leangchhay1523} | 
+%     \socialicon{\faFacebook} \href{https://facebook.com/leangchhay1523}{leangchhay1523} 
+%     }
+% \end{center}
+% \vspace{-6mm}
+
+% \begin{center}
+%     \small{Phnom Penh, Cambodia}
+% \end{center}
+
+% \vspace{-4mm}
+
+% === Dark blue top bar ===
+\colorlet{headerblue}{darkblue!90!black}   % or use RGB{0,51,102} etc.
+
+% === Main header with photo on right ===
+\begin{minipage}[t]{0.70\textwidth}
+    \vspace{-2mm}
+    \raggedright
+    {\Huge\bfseries SONG KIMLEANGCHHAY}\\[3mm]
+    {\LARGE\bfseries Data Science Student}\\[5mm]
+
+    \small
+    % \socialicon{\faPhone}\kern1mm \& \kern1mm
+    \socialicon{\faPhone}\kern1mm \href{tel:+85592271285}{092 271 285} \quad
+    \socialicon{\faEnvelope}\kern1mm \href{mailto:kimleangchhay.song.321@gmail.com}{kimleangchhay.song.321@gmail.com}
+
+    \socialicon{\faGlobe}\kern1mm \href{https://kimleangchhay.me}{Personal Portfolio} \quad
+    \socialicon{\faLinkedin}\kern1mm \href{https://www.linkedin.com/in/kimleangchhay-song/}{kimleangchhay-song} \quad
+    \socialicon{\faGithub}\kern1mm \href{https://github.com/leangchhay1523}{leangchhay1523} \quad
+    % \socialicon{\faFacebook}\kern1mm \href{https://facebook.com/leangchhay1523}{leangchhay1523}\\[2mm]
+
+    \normalsize
+    Phnom Penh, Cambodia
+    \vspace{3mm}
+\end{minipage}%
+\hfill
+\begin{minipage}[t]{0.28\textwidth}
+    \vspace{-8mm}
+    \raggedleft
+    \includegraphics[width=3.6cm,height=4.8cm,keepaspectratio]{photo.jpg}
+\end{minipage}
+
+\vspace{4mm}   % space before first section
+\vspace{-10mm}
+
+\section{\textbf{Summary}}
+% \vspace{-0.4mm}
+\justifying{I am a Computer Science student (specializing in Data Science) at the Cambodia Academy of Digital Technology. Previously a Prompt Engineer Intern designing multi-template LLM prompts, I now serve as a Software Engineer at Resumely, delivering full-stack AI integrations in production. My work also includes building a data annotation platform for ML workflows and researching text detection and OCR systems.}
+
+\section{\textbf{Experience}}
+\vspace{-0.4mm}
+
+\resumeSubHeadingListStart
+
+\resumeSubheading
+    { \href{https://www.resumely.app}{Resumely}}
+    % {Remote - Phnom Penh, Cambodia}
+    {}
+    % {Software Engineer / AI (Part-time) \& Prompt Engineer (Intern)}
+    {}
+    {March 2025 - Present | Remote - Phnom Penh, Cambodia}
+\vspace{-5mm}
+\resumeItemListStart
+    % Software Engineer / AI (Part-time)
+    \item \textbf{Software Engineer / AI (Part-time) | September 2025 - Present}
+    \begin{itemize}
+        \item Built the \textbf{Resume Customization} feature, allowing users to select fonts and colors, enhancing personalization and user experience.
+        \vspace{1mm}
+        \item Developed a \textbf{dynamic resume preview system} for accurate ’what-you-see-is-what-you-get’ display.
+        \vspace{1mm}
+        \item Improved \textbf{resume generation workflow} with background processing and notifications, reducing user wait time and interruptions.
+        \vspace{1mm}
+        \item Built a \textbf{resume tailoring system} that allows users to optimize their resume or profile to match the job description.
+        \vspace{2mm}
+    \end{itemize}
+
+    % Prompt Engineer (Intern)
+    \item \textbf{Prompt Engineer (Intern) | March 2025 - September 2025}
+    \begin{itemize}
+        \item Created and refined \textbf{LLM prompt templates} (15 templates in total) that enabled the AI to generate complete, accurate LaTeX resumes from user-provided data.
+        \vspace{1mm}
+        \item Developed a \textbf{rule-based skill recommendation} feature using fuzzy string matching (FuzzyWuzzy), improving resume completeness and relevance.
+        \vspace{1mm}
+        \item Built an AI-powered \textbf{cover letter generator} and a simple job recommendation engine to help users find jobs matching their profile.
+        \vspace{2mm}
+    \end{itemize}
+
+\resumeItemListEnd
+\resumeSubHeadingListEnd
+\vspace{-10mm}
+\resumeSubHeadingListStart
+\resumeSubheading
+    {\href{https://www.idri.edu.kh/}{Institute of Digital Research and Innovation (IDRI)}}
+    {}
+    {}
+    {April 2026 - August 2026 | Phnom Penh, Cambodia}
+\vspace{-5mm}
+\resumeItemListStart
+    \item \textbf{Data Annotation Automation Engineer}
+    \begin{itemize}
+        \item Designed and built an end-to-end \textbf{Synthetic Khmer Education Data Generation Pipeline} at IDRI.
+        \vspace{1mm}
+        \item Collected and cleaned \textbf{5,427 educational PDFs} (from 5,515 crawled) from Sala Digital, organized by STEM/Social Science and grade levels.
+        \vspace{1mm}
+        \item Performed OCR on \textbf{706 books (76,528 pages)} with Gemini and fine-tuned \textbf{DeepSeek-OCR2}, reducing CER from ~94\% to 8\%.
+        \vspace{1mm}
+        \item Generated and validated \textbf{~99,700 structured QA pairs} across STEM and Social Science using LLMs with dual quality control.
+        \vspace{2mm}
+    \end{itemize}
+\resumeItemListEnd
+\resumeSubHeadingListEnd
+
+
+\vspace{-6mm}
+
+\section{\textbf{Education}}
+\vspace{-0.4mm}
+\resumeSubHeadingListStart
+
+\resumeSubheading
+{Cambodia Academy of Digital Technology}{Phnom Penh, Cambodia}
+{B.Sc. in Computer Science}{February 2023 - Present}
+\resumeItemListStart
+\item \textbf{Project:} Khmer Text Annotation Tool, Customer Churn Analysis 
+\item Techo Digital Talent Scholarship 2023
+\resumeItemListEnd
+
+\resumeSubHeadingListEnd
+\vspace{-6mm}
+
+\section{\textbf{Projects}}
+\vspace{-0.4mm}
+\resumeSubHeadingListStart
+
+\resumeProject
+  {Local Speech-to-Text Converter}
+  {Tools: Python, JavaScript, FlaskAPI, HTML, CSS, PyTorch, Whisper (OpenAI)}
+  {Jan 2025}
+  {{}[\href{https://github.com/Leangchhay1523/local_STT_converter_with_Whisper.git}{\textcolor{darkblue}{\faGithub}}]}
+\resumeItemListStart
+  \item A system for transcribing input \textbf{English speech} into \textbf{text}. The model used for transcription is \textbf{WHISPER}, an ASR model developed by \textbf{OpenAI}. This allows users to upload any English speech and receive the transcription quickly. 
+\resumeItemListEnd
+
+\resumeProject
+  {Customer Churn Analysis}
+  {Tools: Python, Matplotlib, Pandas, Seaborn, Jupyter Notebook}
+  {Mar 2025}
+  {{}[\href{https://github.com/Leangchhay1523/Customer_Churn_Analysis}{\textcolor{darkblue}{\faGithub}}]}
+\resumeItemListStart
+    \item Developed a \textbf{modular customer churn analysis system} in Python using \textbf{Pandas}, \textbf{Matplotlib}, and \textbf{Seaborn}, implementing \textbf{12+ analysis modules} for feature-based analytics.
+    
+    \item Performed \textbf{exploratory data analysis (EDA)} through data quality assessment, churn rate measurement, and visualizations to understand customer behavior and churn patterns.
+    
+    \item Analyzed \textbf{customer demographics, contract, subscription, tenure, payment, usage, and spending} using feature correlation and visualization to identify key factors associated with customer churn.
+\resumeItemListEnd
+
+\resumeProject
+  {Hospital Management System Database}
+  {Tools: PostgreSQL, SQL, Python}
+  {May 2025 -- Jul 2025}
+  {{}[\href{https://github.com/Leangchhay1523/Hospital_Management_System}{\textcolor{darkblue}{\faGithub}}]}
+\resumeItemListStart
+  \item Designed a \textbf{relational database schema} for a hospital management system supporting patients, staff, appointments, medical records, and billing.
+  
+  \item Created an \textbf{Entity-Relationship Diagram (ERD)} and implemented normalized tables with \textbf{primary and foreign key constraints}.
+
+  \item Implemented the database using \textbf{SQL DDL} and developed \textbf{15 complex queries} involving joins, aggregations, subqueries for data retrieval analysis and check the query time.
+
+  \item Designed \textbf{Role-Based Access Control (RBAC)} with PostgreSQL roles and privileges to manage permissions for admin, doctor, receptionist, and nurse users.
+
+  \item Developed a \textbf{backup and recovery plan} using full and incremental backups to ensure data reliability.
+
+  \item Improved query performance by implementing \textbf{indexing strategies}, reducing execution time for complex queries on datasets exceeding \textbf{1 million records}.
+\resumeItemListEnd
+
+% \resumeProject
+%   {Personal Portfolio Site}
+%   {Tools: HTML, CSS, JavaScript, TypeScript, Git, GitHub, Tailwind CSS}
+%   {Apr 2025}
+%   {{}[\href{https://leangchhayportfolio.vercel.app/}{\textcolor{darkblue}{\faGlobe}}]}
+% \resumeItemListStart
+%   \item A responsive personal portfolio site highlighting my skills, education, projects, experience as well as contact information, designed to make it easy for collaborators and recruiters to connect with me.
+\resumeItemListEnd
+
+\resumeSubHeadingListEnd
+
+\section{\textbf{Skills}}
+\vspace{-0.4mm}
+ \resumeHeadingSkillStart
+\resumeSubItem{Programming Languages:}
+    {Python, JavaScript}
+\resumeSubItem{Web \& Frontend Technologies}
+    {HTML, CSS, React.js, TypeScript}
+\resumeSubItem{Database:}
+ % \& Big Data
+    {MongoDB, MySQL, PostgreSQL}
+\resumeSubItem{Data Science:}
+    {Pandas, NumPy, Matplotlib, Seaborn}
+\resumeSubItem{Cloud \& DevOps:}
+    {Google Cloud Platform (GCS, Batch Prediction API, VM Instances), Git/GitHub, GitHub Actions, Vercel}
+ \resumeHeadingSkillEnd
+
+% \section{\textbf{Patents and Publications} \hfill \textcolor{darkblue}{\scriptsize C=Conference, J=Journal, P=Patent, S=In Submission, T=Thesis}}
+% \vspace{0.2mm}
+% \small{
+% \begin{enumerate}[leftmargin=*, labelsep=0.5em, align=left, widest={[\textbf{S.1}]}, itemindent=0em, label={\textbf{[\arabic*]}]}]
+% \item[\textbf{[C.1]}] Your Name, et al. (Year). \href{https://doi.org/XX.XXXX/XXXXXXX.XXXX.XXXXXXX}{\textbf{Title of Conference Paper}}. In \textit{Name of Conference Proceedings}, pp. XX-XX. Publisher. Date, Location. DOI: XX.XXXX/XXXXXXX.XXXX.XXXXXXX
+
+% \item[\textbf{[S.1]}] Your Name, et al. (Year). \textbf{Title of Submitted Paper}. Manuscript submitted for publication in \textit{Journal Name}.
+
+% \item[\textbf{[P.1]}] Inventor 1, Your Name, Inventor 3, et al. (Year). \href{https://patentoffice.gov/patent/XXXXXXXXX}{\textbf{Title of Patent}}. Patent Office, Patent No. XXXXXXXXX. Registration Date: Date, Grant Date: Date, Publication Date: Date.
+
+% \item[\textbf{[J.1]}] Author 1, Your Name, Author 3, et al. (Year). \href{https://doi.org/XX.XXXX/XXXXX.XXXX.XXXXXXX}{\textbf{Title of Journal Article}}. \textit{Journal Name}, Vol. XX, Issue X, pp. XXX-XXX. DOI: XX.XXXX/XXXXX.XXXX.XXXXXXX
+% \end{enumerate}
+% }
+
+% \section{\textbf{Honors and Awards}}
+% \vspace{-0.4mm}
+% \resumeSubHeadingListStart
+
+% \resumeProject
+%   {Award Name A}
+%   {Awarding Institution/Organization}
+%   {Month Year}
+%   {{}[\href{https://award-link-a.com}{\textcolor{darkblue}{\faIcon{globe}}}]}
+% \resumeItemListStart
+%   \item Brief description of the award and its significance
+%   \item Impact or recognition associated with the award
+% \resumeItemListEnd
+
+% \resumeProject
+%   {Award Name B}
+%   {Awarding Institution/Organization}
+%   {Month Year}
+%   {{}[\href{https://award-link-b.com}{\textcolor{darkblue}{\faIcon{globe}}}]}
+% \resumeItemListStart
+%   \item Brief description of the award and its significance
+%   \item Impact or recognition associated with the award
+% \resumeItemListEnd
+
+% \resumeProject
+%   {Competition Achievement}
+%   {Competition Name, Organizing Body}
+%   {Month Year}
+%   {{}[\href{https://competition-link.com}{\textcolor{darkblue}{\faIcon{globe}}}]}
+% \resumeItemListStart
+%   \item Specific achievement or rank in the competition
+%   \item Skills or abilities demonstrated through this achievement
+% \resumeItemListEnd
+
+% \resumeSubHeadingListEnd
+
+% \vspace{-6mm}
+% \section{\textbf{Leadership Experience}}
+% \vspace{-0.4mm}
+% \resumeSubHeadingListStart
+% \resumeProject
+%   {Leadership Role A}
+%   {Organization/Institution Name}
+%   {Month Year - Month Year}
+%   {{}[\href{https://organization-a-link.com}{\textcolor{darkblue}{\faIcon{globe}}}]}
+% \resumeItemListStart
+%   \item Key responsibility or achievement in this role
+%   \item Quantifiable impact or improvement made during tenure
+%   \item Initiative taken or project led
+% \resumeItemListEnd
+
+% \resumeProject
+%   {Leadership Role B}
+%   {Organization/Institution Name}
+%   {Month Year - Month Year}
+%   {{}[\href{https://organization-b-link.com}{\textcolor{darkblue}{\faIcon{globe}}}]}
+% \resumeItemListStart
+%   \item Key responsibility or achievement in this role
+%   \item Quantifiable impact or improvement made during tenure
+%   \item Initiative taken or project led
+% \resumeItemListEnd
+
+% \resumeSubHeadingListEnd
+
+% \vspace{-6mm}
+
+% \section{\textbf{Volunteer Experience}}
+% \vspace{-0.4mm}
+% \resumeSubHeadingListStart
+% \resumeProject
+%   {Volunteer Role A}
+%   {Organization Name}
+%   {Month Year - Month Year}
+%   {{}[\href{https://volunteer-org-a-link.com}{\textcolor{darkblue}{\faIcon{globe}}}]}
+% \resumeItemListStart
+%   \item Key responsibility or contribution in this role
+%   \item Impact of your volunteer work
+%   \item Skills developed or applied during this experience
+% \resumeItemListEnd
+
+% \resumeProject
+%   {Volunteer Role B}
+%   {Organization Name}
+%   {Month Year - Present}
+%   {{}[\href{https://volunteer-org-b-link.com}{\textcolor{darkblue}{\faIcon{globe}}}]}
+% \resumeItemListStart
+%   \item Key responsibility or contribution in this role
+%   \item Impact of your volunteer work
+%   \item Skills developed or applied during this experience
+% \resumeItemListEnd
+
+% \resumeSubHeadingListEnd
+% \vspace{-6mm}
+
+% \section{\textbf{Professional Memberships}}
+% \vspace{-0.4mm}
+% \resumeSubHeadingListStart
+% \resumePOR{Professional Organization A}
+%     {, Membership ID: XXXXXXXX}
+%     {Month Year - Present}
+% \resumePOR{Professional Organization B}
+%     {, \href{https://membership-certificate-link.com}{Membership ID: XXXXXXXX}}
+%     {Month Year - Present}
+% \resumePOR{Professional Organization C}
+%     {, \href{https://membership-certificate-link.com}{Membership ID: XXXXXXXX}}
+%     {Month Year - Present}
+
+% \resumeSubHeadingListEnd
+% \vspace{-6mm}
+
+% \section{\textbf{Certifications}}
+% \vspace{-0.2mm}
+% \resumeSubHeadingListStart
+% \resumePOR{}{\href{https://certification-link-a.com}{
+% \textbf{Certification A}
+% }}{Month Year}
+% \resumePOR{}{
+% \textbf{Certifying Body:} {{\href{https://certification-link-b.com}{Certification B}}}}{Month Year}
+% \resumePOR{}{
+% \textbf{Certifying Body:} {{\href{https://certification-link-c.com}{Certification C}}}}{Month Year}
+% \resumePOR{}{\href{https://certification-link-d.com}{
+% \textbf{Certification D}
+% }}{Month Year}
+
+% \resumeSubHeadingListEnd
+% \vspace{-6mm}
+
+% \section{\textbf{Additional Information}}
+% \vspace{-0.4mm}
+% \small{
+% \textbf{Languages:} Khmer (Native), English (Proficiency)
+
+% \textbf{Interests:} Artificial Intelligence, Data Science, Machine Learning, Web Development, Agentic System
+% }
+% \vspace{-4mm}
+
+
+% \section{\textbf{References}}
+% \vspace{-0.2mm}
+% \small{
+% \begin{enumerate}[leftmargin=*,labelsep=2mm]
+% \item \textbf{Reference Person 1}\\
+%    Job Title, Department\\
+%    Organization/Institution Name\\
+%    Email: email1@example.com\\
+%    Phone: +X-XXX-XXX-XXXX\\
+%    \textit{Relationship: [e.g., Thesis Advisor, Manager, etc.]}
+
+% % \item \textbf{Reference Person 2}\\
+% %    Job Title, Department\\
+% %    Organization/Institution Name\\
+% %    Email: email2@example.com\\
+% %    Phone: +X-XXX-XXX-XXXX\\
+% %    \textit{Relationship: [e.g., Project Supervisor, Colleague, etc.]}
+
+% % \item \textbf{Reference Person 3}\\
+% %    Job Title, Department\\
+% %    Organization/Institution Name\\
+% %    Email: email3@example.com\\
+% %    Phone: +X-XXX-XXX-XXXX\\
+% %    \textit{Relationship: [e.g., Mentor, Collaborator, etc.]}
+% \end{enumerate}
+% }
+
+\end{document}

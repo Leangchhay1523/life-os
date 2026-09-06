@@ -121,104 +121,42 @@ export default function Milestones(): ReactElement {
   // ── Render ───────────────────────────────────────────────────────────────────
   return (
     <div
-      className="flex flex-1 min-h-0 overflow-hidden w-full"
+      className="flex flex-1 min-h-0 overflow-hidden w-full p-4"
       style={{ fontFamily: "'Inter', 'Segoe UI', sans-serif" }}
     >
-      {/* ── Left sidebar ─────────────────────────────────────────── */}
-      <aside
-        className="w-56 shrink-0 border-r border-border flex flex-col gap-5 p-5 overflow-y-auto h-full"
-        style={{ background: 'var(--color-surface)' }}
-      >
-        {/* Hero blurb */}
-        <div
-          className="rounded-2xl p-4 relative overflow-hidden"
-          style={{
-            background: 'linear-gradient(135deg, rgba(99,102,241,0.15), rgba(168,85,247,0.10))'
-          }}
-        >
-          <div
-            className="absolute -top-6 -right-6 w-20 h-20 rounded-full opacity-40"
-            style={{ background: 'radial-gradient(circle, #a855f7, transparent)' }}
-          />
-          <div
-            className="w-10 h-10 rounded-xl flex items-center justify-center mb-3 relative"
-            style={{ background: 'rgba(99,102,241,0.2)' }}
-          >
-            <FaFlag style={{ color: '#6366f1', width: 18, height: 18 }} />
+      {/* ── Left sidebar ─────────────────────────────────────── */}
+      <aside className="w-44 shrink-0 overflow-y-auto pl-1">
+        <div className="sticky top-0 flex flex-col gap-0.5 pt-1">
+          {/* Section header */}
+          <div className="flex items-center gap-2 px-3 py-2 mb-2">
+            <FaFlag className="w-3.5 h-3.5" style={{ color: '#6366f1' }} />
+            <span className="text-sm font-bold text-foreground">Milestones</span>
           </div>
-          <p className="text-sm font-bold text-foreground leading-snug">Milestones & Big Goals</p>
-          <p className="text-xs text-muted mt-1 leading-relaxed">
-            Track every big event, achievement, and future goal on your personal timeline.
-          </p>
-        </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 gap-2">
-          <div
-            className="rounded-xl p-3 text-center border border-border"
-            style={{ background: 'var(--color-card)' }}
-          >
-            <div className="text-2xl font-black text-foreground">{milestones.length}</div>
-            <div className="text-[10px] text-muted uppercase tracking-wide mt-0.5">Total</div>
+          {/* Stats row */}
+          <div className="flex items-center gap-3 px-3 py-2 text-xs text-muted">
+            <span>
+              <span className="font-bold text-foreground">{milestones.length}</span> total
+            </span>
+            <span>
+              <span className="font-bold" style={{ color: '#6366f1' }}>
+                {milestones.filter((m) => m.title).length}
+              </span>{' '}
+              named
+            </span>
           </div>
-          <div
-            className="rounded-xl p-3 text-center border border-border"
-            style={{ background: 'var(--color-card)' }}
-          >
-            <div className="text-2xl font-black" style={{ color: '#6366f1' }}>
-              {milestones.filter((m) => m.title).length}
-            </div>
-            <div className="text-[10px] text-muted uppercase tracking-wide mt-0.5">Named</div>
+
+          {/* Save */}
+          <div className="mt-4 px-1">
+            <button
+              onClick={handleSave}
+              disabled={isSaving || !isLoaded}
+              className="w-full flex items-center justify-center gap-2 py-2.5 bg-primary text-primary-foreground font-bold rounded-xl shadow-sm hover:opacity-90 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <FaSave className={`w-4 h-4 ${isSaving ? 'animate-bounce' : ''}`} />
+              {isSaving ? 'Saving...' : 'Save Data'}
+            </button>
           </div>
-        </div>
-
-        {/* Save */}
-        <button
-          onClick={handleSave}
-          disabled={isSaving || !isLoaded}
-          className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm transition-all active:scale-95 disabled:opacity-50"
-          style={{
-            background: isSaving
-              ? 'rgba(99,102,241,0.4)'
-              : 'linear-gradient(135deg, #6366f1, #a855f7)',
-            color: '#fff',
-            boxShadow: '0 4px 20px rgba(99,102,241,0.35)'
-          }}
-        >
-          <FaSave className={isSaving ? 'animate-bounce' : ''} />
-          {isSaving ? 'Saved!' : 'Save Milestones'}
-        </button>
-
-        {/* Tips */}
-        <div
-          className="rounded-xl p-3 border border-border text-xs space-y-1"
-          style={{ background: 'var(--color-card)', color: 'var(--color-muted)' }}
-        >
-          <p
-            style={{
-              color: 'var(--color-foreground)',
-              fontWeight: 700,
-              fontSize: '10px',
-              textTransform: 'uppercase',
-              letterSpacing: '0.05em',
-              marginBottom: '6px'
-            }}
-          >
-            Tips
-          </p>
-          <p style={{ color: 'var(--color-muted)' }}>
-            • Click <span style={{ fontWeight: 700, color: 'var(--color-foreground)' }}>+ Add</span>{' '}
-            button below
-          </p>
-          <p style={{ color: 'var(--color-muted)' }}>• Hover a card to edit or delete</p>
-          <p style={{ color: 'var(--color-muted)' }}>
-            • Use <span style={{ fontWeight: 700, color: 'var(--color-foreground)' }}>-</span> for
-            bullet points
-          </p>
-          <p style={{ color: 'var(--color-muted)' }}>
-            • Press <span style={{ fontWeight: 700, color: 'var(--color-foreground)' }}>Save</span>{' '}
-            to keep data
-          </p>
         </div>
       </aside>
 
@@ -256,191 +194,159 @@ export default function Milestones(): ReactElement {
           </div>
         )}
 
-        {/* Timeline */}
+        {/* Milestone cards */}
         {milestones.length > 0 && (
-          <div className="max-w-2xl mx-auto">
-            <div className="relative">
-              {/* Vertical line — only spans the milestone items, not full container */}
-              <div
-                className="absolute left-5 top-5 w-0.5"
-                style={{
-                  height: `calc(100% - 40px)`,
-                  background: 'linear-gradient(to bottom, #6366f1, #a855f7, transparent)'
-                }}
-              />
+          <div className="max-w-2xl mx-auto flex flex-col gap-4">
+            {milestones.map((item, index) => {
+              const palette = PALETTE[index % PALETTE.length]
+              const isEditing = editingId === item.id
 
-              <div className="flex flex-col gap-6 pl-16">
-                {milestones.map((item, index) => {
-                  const palette = PALETTE[index % PALETTE.length]
-                  const isEditing = editingId === item.id
-
-                  return (
+              return (
+                <div
+                  key={item.id}
+                  className="group rounded-2xl border transition-all overflow-hidden"
+                  style={{
+                    background: 'var(--color-card)',
+                    borderColor: isEditing ? palette.accent : 'var(--color-border)',
+                    borderLeftWidth: '4px',
+                    borderLeftColor: palette.accent,
+                    boxShadow: isEditing
+                      ? `0 0 0 3px ${palette.light}`
+                      : '0 2px 8px rgba(0,0,0,0.04)'
+                  }}
+                >
+                  {/* Card header */}
+                  <div className="flex items-start gap-3 p-5 pb-3">
+                    {/* Icon */}
                     <div
-                      key={item.id}
-                      className="relative group animate-in fade-in slide-in-from-bottom-2 duration-300"
-                      style={{ animationDelay: `${index * 60}ms` }}
+                      className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0 mt-0.5"
+                      style={{ background: palette.bg, color: palette.accent }}
                     >
-                      {/* Timeline dot */}
-                      <div
-                        className="absolute -left-[52px] top-5 w-10 h-10 rounded-xl flex items-center justify-center shadow-sm border-2 transition-transform group-hover:scale-110"
-                        style={{
-                          background: palette.bg,
-                          borderColor: palette.accent,
-                          color: palette.accent
-                        }}
-                      >
-                        <FaFlag style={{ width: 14, height: 14 }} />
-                      </div>
-
-                      {/* Card */}
-                      <div
-                        className="rounded-2xl border transition-all"
-                        style={{
-                          background: 'var(--color-card)',
-                          borderColor: isEditing ? palette.accent : 'var(--color-border)',
-                          boxShadow: isEditing
-                            ? `0 0 0 3px ${palette.light}`
-                            : '0 2px 8px rgba(0,0,0,0.04)'
-                        }}
-                      >
-                        {/* Card header */}
-                        <div className="flex items-start gap-3 p-5 pb-3">
-                          <div className="flex-1 min-w-0">
-                            {isEditing ? (
-                              <input
-                                autoFocus
-                                value={draft.title ?? ''}
-                                onChange={(e) => setDraft((d) => ({ ...d, title: e.target.value }))}
-                                placeholder="Milestone title…"
-                                className="w-full bg-transparent text-lg font-bold text-foreground focus:outline-none placeholder:text-muted/40 border-b-2 pb-1 transition-colors"
-                                style={{ borderColor: palette.accent }}
-                              />
-                            ) : (
-                              <h3 className="text-base font-bold text-foreground truncate">
-                                {item.title || (
-                                  <span className="text-muted italic font-normal text-sm">
-                                    Untitled Milestone
-                                  </span>
-                                )}
-                              </h3>
-                            )}
-
-                            {/* Date badge */}
-                            {isEditing ? (
-                              <input
-                                value={draft.date ?? ''}
-                                onChange={(e) => setDraft((d) => ({ ...d, date: e.target.value }))}
-                                placeholder="e.g. December 2025"
-                                className="mt-2 text-xs bg-transparent focus:outline-none text-muted placeholder:text-muted/40 border-b pb-0.5 w-48 transition-colors"
-                                style={{ borderColor: 'var(--color-border)' }}
-                              />
-                            ) : item.date ? (
-                              <div
-                                className="inline-flex items-center gap-1.5 mt-2 px-2.5 py-1 rounded-full text-xs font-semibold"
-                                style={{ background: palette.bg, color: palette.accent }}
-                              >
-                                <FaCalendarAlt style={{ width: 10, height: 10 }} />
-                                {item.date}
-                              </div>
-                            ) : null}
-                          </div>
-
-                          {/* Actions */}
-                          <div className="flex items-center gap-1 shrink-0">
-                            {isEditing ? (
-                              <>
-                                <button
-                                  onClick={commitEdit}
-                                  className="p-2 rounded-lg transition-all hover:scale-110"
-                                  style={{ background: 'rgba(16,185,129,0.1)', color: '#10b981' }}
-                                  title="Save"
-                                >
-                                  <FaCheck style={{ width: 12, height: 12 }} />
-                                </button>
-                                <button
-                                  onClick={() => cancelEdit(item.id)}
-                                  className="p-2 rounded-lg transition-all hover:scale-110"
-                                  style={{ background: 'rgba(107,114,128,0.1)', color: '#6b7280' }}
-                                  title="Cancel"
-                                >
-                                  <FaTimes style={{ width: 12, height: 12 }} />
-                                </button>
-                              </>
-                            ) : (
-                              <>
-                                <button
-                                  onClick={() => startEdit(item)}
-                                  className="p-2 rounded-lg text-muted opacity-0 group-hover:opacity-100 transition-all hover:bg-border hover:text-foreground"
-                                  title="Edit"
-                                >
-                                  <FaEdit style={{ width: 12, height: 12 }} />
-                                </button>
-                                <button
-                                  onClick={() => removeItem(item.id)}
-                                  className="p-2 rounded-lg text-muted opacity-0 group-hover:opacity-100 transition-all hover:text-red-500 hover:bg-red-500/10"
-                                  title="Delete"
-                                >
-                                  <FaTrash style={{ width: 12, height: 12 }} />
-                                </button>
-                              </>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Description */}
-                        {(isEditing || item.description) && (
-                          <div className="px-5 pb-5">
-                            {isEditing ? (
-                              <textarea
-                                value={draft.description ?? ''}
-                                onChange={(e) =>
-                                  setDraft((d) => ({ ...d, description: e.target.value }))
-                                }
-                                placeholder="Describe your milestone… (supports - bullet points and **Markdown**)"
-                                rows={4}
-                                className="w-full bg-surface border border-border rounded-xl px-4 py-3 text-sm focus:outline-none transition-all resize-y text-foreground placeholder:text-muted/40"
-                                style={{
-                                  borderColor: 'var(--color-border)',
-                                  outline: 'none'
-                                }}
-                                onFocus={(e) => (e.target.style.borderColor = palette.accent)}
-                                onBlur={(e) => (e.target.style.borderColor = 'var(--color-border)')}
-                              />
-                            ) : (
-                              <div
-                                className="text-sm text-muted whitespace-pre-wrap leading-relaxed pt-1"
-                                style={{ borderTop: '1px solid var(--color-border)' }}
-                              >
-                                <div className="pt-3">{item.description}</div>
-                              </div>
-                            )}
-                          </div>
-                        )}
-                      </div>
+                      <FaFlag style={{ width: 13, height: 13 }} />
                     </div>
-                  )
-                })}
 
-                {/* Add button at bottom */}
-                <div className="relative">
-                  <div
-                    className="absolute -left-[52px] top-3 w-10 h-10 rounded-xl flex items-center justify-center border-2 border-dashed cursor-pointer hover:scale-110 transition-all"
-                    style={{ borderColor: 'var(--color-border)', color: 'var(--color-muted)' }}
-                    onClick={addItem}
-                  >
-                    <FaPlus style={{ width: 12, height: 12 }} />
+                    <div className="flex-1 min-w-0">
+                      {isEditing ? (
+                        <input
+                          autoFocus
+                          value={draft.title ?? ''}
+                          onChange={(e) => setDraft((d) => ({ ...d, title: e.target.value }))}
+                          placeholder="Milestone title…"
+                          className="w-full bg-transparent text-lg font-bold text-foreground focus:outline-none placeholder:text-muted/40 border-b-2 pb-1 transition-colors"
+                          style={{ borderColor: palette.accent }}
+                        />
+                      ) : (
+                        <h3 className="text-base font-bold text-foreground truncate">
+                          {item.title || (
+                            <span className="text-muted italic font-normal text-sm">
+                              Untitled Milestone
+                            </span>
+                          )}
+                        </h3>
+                      )}
+
+                      {/* Date badge */}
+                      {isEditing ? (
+                        <input
+                          value={draft.date ?? ''}
+                          onChange={(e) => setDraft((d) => ({ ...d, date: e.target.value }))}
+                          placeholder="e.g. December 2025"
+                          className="mt-2 text-xs bg-transparent focus:outline-none text-muted placeholder:text-muted/40 border-b pb-0.5 w-48 transition-colors"
+                          style={{ borderColor: 'var(--color-border)' }}
+                        />
+                      ) : item.date ? (
+                        <div
+                          className="inline-flex items-center gap-1.5 mt-2 px-2.5 py-1 rounded-full text-xs font-semibold"
+                          style={{ background: palette.bg, color: palette.accent }}
+                        >
+                          <FaCalendarAlt style={{ width: 10, height: 10 }} />
+                          {item.date}
+                        </div>
+                      ) : null}
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex items-center gap-1 shrink-0">
+                      {isEditing ? (
+                        <>
+                          <button
+                            onClick={commitEdit}
+                            className="p-2 rounded-lg transition-all hover:scale-110"
+                            style={{ background: 'rgba(16,185,129,0.1)', color: '#10b981' }}
+                            title="Save"
+                          >
+                            <FaCheck style={{ width: 12, height: 12 }} />
+                          </button>
+                          <button
+                            onClick={() => cancelEdit(item.id)}
+                            className="p-2 rounded-lg transition-all hover:scale-110"
+                            style={{ background: 'rgba(107,114,128,0.1)', color: '#6b7280' }}
+                            title="Cancel"
+                          >
+                            <FaTimes style={{ width: 12, height: 12 }} />
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button
+                            onClick={() => startEdit(item)}
+                            className="p-2 rounded-lg text-muted opacity-0 group-hover:opacity-100 transition-all hover:bg-border hover:text-foreground"
+                            title="Edit"
+                          >
+                            <FaEdit style={{ width: 12, height: 12 }} />
+                          </button>
+                          <button
+                            onClick={() => removeItem(item.id)}
+                            className="p-2 rounded-lg text-muted opacity-0 group-hover:opacity-100 transition-all hover:text-red-500 hover:bg-red-500/10"
+                            title="Delete"
+                          >
+                            <FaTrash style={{ width: 12, height: 12 }} />
+                          </button>
+                        </>
+                      )}
+                    </div>
                   </div>
-                  <button
-                    onClick={addItem}
-                    className="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl border-2 border-dashed text-sm font-semibold transition-all hover:border-indigo-400/50 hover:text-indigo-400 group"
-                    style={{ borderColor: 'var(--color-border)', color: 'var(--color-muted)' }}
-                  >
-                    <FaPlus className="group-hover:scale-125 transition-transform" />
-                    Add Milestone
-                  </button>
+
+                  {/* Description */}
+                  {(isEditing || item.description) && (
+                    <div className="px-5 pb-5">
+                      {isEditing ? (
+                        <textarea
+                          value={draft.description ?? ''}
+                          onChange={(e) => setDraft((d) => ({ ...d, description: e.target.value }))}
+                          placeholder="Describe your milestone… (supports - bullet points)"
+                          rows={4}
+                          className="w-full bg-surface border border-border rounded-xl px-4 py-3 text-sm focus:outline-none transition-all resize-y text-foreground placeholder:text-muted/40"
+                          style={{
+                            borderColor: 'var(--color-border)',
+                            outline: 'none'
+                          }}
+                          onFocus={(e) => (e.target.style.borderColor = palette.accent)}
+                          onBlur={(e) => (e.target.style.borderColor = 'var(--color-border)')}
+                        />
+                      ) : (
+                        <div
+                          className="text-sm text-muted whitespace-pre-wrap leading-relaxed pt-1"
+                          style={{ borderTop: '1px solid var(--color-border)' }}
+                        >
+                          <div className="pt-3">{item.description}</div>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
-              </div>
-            </div>
+              )
+            })}
+
+            {/* Add button at bottom */}
+            <button
+              onClick={addItem}
+              className="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl border-2 border-dashed text-sm font-semibold transition-all hover:border-indigo-400/50 hover:text-indigo-400 group"
+              style={{ borderColor: 'var(--color-border)', color: 'var(--color-muted)' }}
+            >
+              <FaPlus className="group-hover:scale-125 transition-transform" />
+              Add Milestone
+            </button>
           </div>
         )}
       </main>
