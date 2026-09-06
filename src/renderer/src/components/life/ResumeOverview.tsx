@@ -7,7 +7,9 @@ import {
   FaCertificate,
   FaAlignLeft,
   FaGlobe,
-  FaTrophy
+  FaTrophy,
+  FaUser,
+  FaLightbulb
 } from 'react-icons/fa'
 
 const sections = [
@@ -70,7 +72,7 @@ export default function ResumeOverview() {
             className="w-24 h-24 rounded-2xl flex items-center justify-center text-4xl font-bold text-white shrink-0"
             style={{ background: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(8px)' }}
           >
-            👤
+            <FaUser className="text-4xl text-white" />
           </div>
           <div className="flex-1 text-white">
             <h2 className="text-2xl font-bold mb-1">Your Name</h2>
@@ -155,7 +157,9 @@ export default function ResumeOverview() {
 
       {/* Tips */}
       <div className="bg-primary-light border border-primary/20 rounded-xl p-4 flex items-start gap-3">
-        <span className="text-lg">💡</span>
+        <div className="mt-1 text-primary">
+          <FaLightbulb className="w-5 h-5" />
+        </div>
         <div>
           <p className="text-sm font-semibold text-primary mb-0.5">Pro Tip</p>
           <p className="text-xs text-muted">

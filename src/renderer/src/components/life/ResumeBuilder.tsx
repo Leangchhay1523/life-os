@@ -19,7 +19,9 @@ import {
   FaSpinner,
   FaCopy,
   FaCheck,
-  FaArrowLeft
+  FaArrowLeft,
+  FaListAlt,
+  FaClock
 } from 'react-icons/fa'
 
 // ─── Types (mirrored from ResumeSections) ─────────────────────────────────────
@@ -33,6 +35,7 @@ interface SummaryData {
 interface ExperienceItem extends BaseItem {
   company: string
   role: string
+  jobType?: string
   startDate: string
   endDate: string
   location: string
@@ -51,6 +54,7 @@ interface ProjectItem extends BaseItem {
   description: string
   tech: string
   url: string
+  date: string
 }
 interface SkillItem extends BaseItem {
   name: string
@@ -106,6 +110,14 @@ interface CanvasSection {
   records: string[] // record IDs
 }
 
+interface ResumeVersion {
+  id: string
+  name: string
+  canvas: CanvasSection[]
+  createdAt: string
+  updatedAt: string
+}
+
 type SectionKey =
   | 'summary'
   | 'experience'
@@ -131,7 +143,7 @@ const SECTION_META: Record<SectionKey, { label: string; icon: React.ElementType;
 function getRecordLabel(sectionId: SectionKey, record: any): string {
   switch (sectionId) {
     case 'summary':
-      return 'Summary text'
+      return record.text ? `"${record.text.substring(0, 45)}..."` : 'Summary content'
     case 'experience':
       return `${record.role || 'Role'} @ ${record.company || 'Company'}`
     case 'education':
@@ -257,11 +269,12 @@ function generateLatex(data: ResumeData, canvas: CanvasSection[]): string {
     {\\Huge\\bfseries ${esc(pi.name || 'Your Name')}}\\\\[3mm]
     {\\LARGE\\bfseries ${esc(pi.jobTitle || 'Your Title')}}\\\\[5mm]
     \\small
-    ${pi.phone ? `\\socialicon{\\faPhone}\\kern1mm ${esc(pi.phone)} \\quad` : ''}
-    ${pi.email ? `\\socialicon{\\faEnvelope}\\kern1mm \\href{mailto:${esc(pi.email)}}{${esc(pi.email)}}` : ''}
+    ${pi.phone ? `\\socialicon{\\faPhone}\\kern1mm \\href{tel:${esc(pi.phone.replace(/\\s/g, ''))}}{${esc(pi.phone)}} \\quad` : ''}
+    ${pi.email ? `\\socialicon{\\faEnvelope}\\kern1mm \\href{mailto:${esc(pi.email)}}{${esc(pi.email)}}\\\\[2mm]` : ''}
     ${pi.portfolio ? `\\socialicon{\\faGlobe}\\kern1mm \\href{${esc(pi.portfolio)}}{Personal Portfolio} \\quad` : ''}
     ${pi.linkedin ? `\\socialicon{\\faLinkedin}\\kern1mm \\href{${esc(pi.linkedin)}}{LinkedIn} \\quad` : ''}
-    ${pi.github ? `\\socialicon{\\faGithub}\\kern1mm \\href{${esc(pi.github)}}{GitHub} \\quad` : ''}
+    ${pi.github ? `\\socialicon{\\faGithub}\\kern1mm \\href{${esc(pi.github)}}{GitHub}\\\\[2mm]` : ''}
+    
     \\normalsize
     ${pi.city || pi.country ? `${esc([pi.city, pi.country].filter(Boolean).join(', '))}` : ''}
     \\vspace{3mm}
@@ -295,9 +308,28 @@ function generateLatex(data: ResumeData, canvas: CanvasSection[]): string {
         tex += `\n\\section{\\textbf{Experience}}\n\\vspace{-0.4mm}\n\\resumeSubHeadingListStart\n`
         for (const r of selectedRecords) {
           const exp = r as ExperienceItem
-          tex += `\\resumeSubheading\n    {${esc(exp.company)}}{${esc(exp.location)}}{${esc(exp.role)}}{${esc(exp.startDate)}${exp.endDate ? ` - ${esc(exp.endDate)}` : ''}}\n`
-          if (exp.description) {
-            tex += `\\resumeItemListStart\n    \\item ${esc(exp.description)}\n\\resumeItemListEnd\n`
+          const roleWithJobType = exp.jobType ? `${exp.role} - ${exp.jobType}` : exp.role
+          // resume.tex uses empty #2 and #3, puts date and location in #4, and role as the first item.
+          const dateLocation = `${exp.startDate}${exp.endDate ? ` - ${exp.endDate}` : ''} | ${exp.location}`
+          tex += `\\resumeSubheading\n    {${esc(exp.company)}}\n    {}\n    {}\n    {${esc(dateLocation)}}\n`
+
+          if (exp.description || roleWithJobType) {
+            tex += `\\vspace{-5mm}\n\\resumeItemListStart\n`
+            if (roleWithJobType) {
+              tex += `    \\item \\textbf{${esc(roleWithJobType)}}\n`
+            }
+
+            if (exp.description) {
+              tex += `    \\begin{itemize}\n`
+              for (const line of exp.description.split('\n')) {
+                const cleaned = line.replace(/^[\s•*-]+/, '').trim()
+                if (cleaned) {
+                  tex += `        \\item ${esc(cleaned)}\\vspace{1mm}\n`
+                }
+              }
+              tex += `    \\end{itemize}\n`
+            }
+            tex += `\\resumeItemListEnd\n`
           }
         }
         tex += `\\resumeSubHeadingListEnd\n`
@@ -316,9 +348,16 @@ function generateLatex(data: ResumeData, canvas: CanvasSection[]): string {
         tex += `\n\\section{\\textbf{Projects}}\n\\vspace{-0.4mm}\n\\resumeSubHeadingListStart\n`
         for (const r of selectedRecords) {
           const pr = r as ProjectItem
-          tex += `\\resumeProject\n    {${esc(pr.name)}}{Tools: ${esc(pr.tech)}}{}{${pr.url ? `{}[\\href{${esc(pr.url)}}{\\textcolor{darkblue}{\\faGithub}}]` : ''}}\n`
+          tex += `\\resumeProject\n    {${esc(pr.name)}}{Tools: ${esc(pr.tech)}}{${esc(pr.date || '')}}{${pr.url ? `{}[\\href{${esc(pr.url)}}{\\textcolor{darkblue}{\\faGithub}}]` : ''}}\n`
           if (pr.description) {
-            tex += `\\resumeItemListStart\n    \\item ${esc(pr.description)}\n\\resumeItemListEnd\n`
+            tex += `\\resumeItemListStart\n`
+            for (const line of pr.description.split('\n')) {
+              const cleaned = line.replace(/^[\s•*-]+/, '').trim()
+              if (cleaned) {
+                tex += `    \\item ${esc(cleaned)}\n`
+              }
+            }
+            tex += `\\resumeItemListEnd\n`
           }
         }
         tex += `\\resumeSubHeadingListEnd\n`
@@ -380,6 +419,9 @@ export default function ResumeBuilder(): React.JSX.Element {
   const [data, setData] = useState<ResumeData | null>(null)
   const [canvas, setCanvas] = useState<CanvasSection[]>([])
   const [activeSidebar, setActiveSidebar] = useState<SectionKey>('experience')
+  const [activeTab, setActiveTab] = useState<'records' | 'versions'>('records')
+  const [versions, setVersions] = useState<ResumeVersion[]>([])
+  const [newVersionName, setNewVersionName] = useState('')
   const [latexCode, setLatexCode] = useState('')
   const [showLatex, setShowLatex] = useState(false)
   const [pdfBase64, setPdfBase64] = useState('')
@@ -389,12 +431,15 @@ export default function ResumeBuilder(): React.JSX.Element {
 
   // Load saved resume data
   useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
     async function load() {
       try {
         const raw = await (window as any).api.storeGet('resume-data')
         if (raw) setData(raw as ResumeData)
         const savedCanvas = await (window as any).api.storeGet('resume-builder-canvas')
         if (savedCanvas) setCanvas(savedCanvas as CanvasSection[])
+        const savedVersions = await (window as any).api.storeGet('resume-versions')
+        if (savedVersions) setVersions(savedVersions as ResumeVersion[])
       } catch (e) {
         console.error(e)
       }
@@ -427,6 +472,7 @@ export default function ResumeBuilder(): React.JSX.Element {
   const availableRecords = currentRecords.filter((r) => !usedRecordIds.has(r.id))
 
   // ── Add record to canvas ──
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   const addRecordToCanvas = (recordId: string) => {
     const existing = canvas.find((s) => s.sectionId === activeSidebar)
     if (existing) {
@@ -441,6 +487,7 @@ export default function ResumeBuilder(): React.JSX.Element {
   }
 
   // ── Remove record from canvas ──
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   const removeRecordFromCanvas = (sectionId: string, recordId: string) => {
     const updated = canvas
       .map((s) => {
@@ -452,17 +499,20 @@ export default function ResumeBuilder(): React.JSX.Element {
   }
 
   // ── Remove entire section from canvas ──
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   const removeSectionFromCanvas = (sectionId: string) => {
     saveCanvas(canvas.filter((s) => s.sectionId !== sectionId))
   }
 
   // ── Move section up/down ──
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   const moveSectionUp = (idx: number) => {
     if (idx === 0) return
     const arr = [...canvas]
     ;[arr[idx - 1], arr[idx]] = [arr[idx], arr[idx - 1]]
     saveCanvas(arr)
   }
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   const moveSectionDown = (idx: number) => {
     if (idx >= canvas.length - 1) return
     const arr = [...canvas]
@@ -471,6 +521,7 @@ export default function ResumeBuilder(): React.JSX.Element {
   }
 
   // ── Drag and drop ──
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   const onDragEnd = (result: DropResult) => {
     const { source, destination } = result
     if (!destination) return
@@ -481,6 +532,16 @@ export default function ResumeBuilder(): React.JSX.Element {
       const [moved] = arr.splice(source.index, 1)
       arr.splice(destination.index, 0, moved)
       saveCanvas(arr)
+      return
+    }
+
+    // Reorder versions
+    if (source.droppableId === 'resume-versions' && destination.droppableId === 'resume-versions') {
+      const arr = [...versions]
+      const [moved] = arr.splice(source.index, 1)
+      arr.splice(destination.index, 0, moved)
+      setVersions(arr)
+      ;(window as any).api.storeSet('resume-versions', arr)
       return
     }
 
@@ -501,7 +562,49 @@ export default function ResumeBuilder(): React.JSX.Element {
     }
   }
 
+  // ── Versions Operations ──
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+  const handleSaveVersion = () => {
+    if (!newVersionName.trim()) return
+    const newVersion: ResumeVersion = {
+      id: crypto.randomUUID(),
+      name: newVersionName.trim(),
+      canvas: [...canvas],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    }
+    const updated = [...versions, newVersion]
+    setVersions(updated)
+    ;(window as any).api.storeSet('resume-versions', updated)
+    setNewVersionName('')
+  }
+
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+  const handleLoadVersion = (v: ResumeVersion) => {
+    saveCanvas(v.canvas)
+  }
+
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+  const handleDeleteVersion = (e: React.MouseEvent, id: string) => {
+    e.stopPropagation()
+    const updated = versions.filter((v) => v.id !== id)
+    setVersions(updated)
+    ;(window as any).api.storeSet('resume-versions', updated)
+  }
+
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+  const handleUpdateVersion = (e: React.MouseEvent, id: string) => {
+    e.stopPropagation()
+    const updated = versions.map((v) => {
+      if (v.id !== id) return v
+      return { ...v, canvas: [...canvas], updatedAt: new Date().toISOString() }
+    })
+    setVersions(updated)
+    ;(window as any).api.storeSet('resume-versions', updated)
+  }
+
   // ── Generate LaTeX ──
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   const handleGenerate = () => {
     const tex = generateLatex(data, canvas)
     setLatexCode(tex)
@@ -511,6 +614,7 @@ export default function ResumeBuilder(): React.JSX.Element {
   }
 
   // ── Compile to PDF ──
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   const handleCompile = async () => {
     setCompiling(true)
     setCompileError('')
@@ -528,6 +632,7 @@ export default function ResumeBuilder(): React.JSX.Element {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   const handleCopy = () => {
     navigator.clipboard.writeText(latexCode)
     setCopied(true)
@@ -570,6 +675,17 @@ export default function ResumeBuilder(): React.JSX.Element {
             )}
             {compiling ? 'Compiling...' : 'Compile PDF'}
           </button>
+
+          {pdfBase64 && (
+            <a
+              href={`data:application/pdf;base64,${pdfBase64}`}
+              download={`Resume_${new Date().toISOString().slice(0, 10)}.pdf`}
+              className="flex items-center gap-1.5 text-xs font-bold px-4 py-1.5 rounded-lg bg-green-600/90 text-white hover:bg-green-600 transition-all shadow-sm"
+              title="Save to folder"
+            >
+              <FaFilePdf className="w-3 h-3" /> Download PDF
+            </a>
+          )}
         </div>
 
         {compileError && (
@@ -599,9 +715,10 @@ export default function ResumeBuilder(): React.JSX.Element {
                 <FaFilePdf className="inline w-3 h-3 mr-1.5" /> PDF Preview
               </div>
               <iframe
-                src={`data:application/pdf;base64,${pdfBase64}`}
-                className="flex-1 w-full"
+                src={`data:application/pdf;base64,${pdfBase64}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`}
+                className="flex-1 w-full bg-white"
                 title="Resume PDF Preview"
+                style={{ border: 'none' }}
               />
             </div>
           )}
@@ -615,77 +732,170 @@ export default function ResumeBuilder(): React.JSX.Element {
       <DragDropContext onDragEnd={onDragEnd}>
         {/* ═══ LEFT: Record Browser ═══ */}
         <aside className="w-72 shrink-0 flex flex-col border-r border-border bg-surface/30 min-h-0">
-          <div className="px-4 py-3 border-b border-border shrink-0">
-            <h2 className="text-sm font-bold text-foreground">📋 Records</h2>
-            <p className="text-xs text-muted mt-0.5">Click + to add records to your resume</p>
+          <div className="flex border-b border-border shrink-0">
+            <button
+              onClick={() => setActiveTab('records')}
+              className={`flex-1 py-3 text-xs font-bold text-center transition-colors ${activeTab === 'records' ? 'text-primary border-b-2 border-primary bg-primary/5' : 'text-muted hover:text-foreground hover:bg-surface/50'}`}
+            >
+              <FaListAlt className="inline -mt-0.5 mr-1.5" /> Records
+            </button>
+            <button
+              onClick={() => setActiveTab('versions')}
+              className={`flex-1 py-3 text-xs font-bold text-center transition-colors ${activeTab === 'versions' ? 'text-primary border-b-2 border-primary bg-primary/5' : 'text-muted hover:text-foreground hover:bg-surface/50'}`}
+            >
+              <FaClock className="inline -mt-0.5 mr-1.5" /> Versions
+            </button>
           </div>
 
-          {/* Section tabs */}
-          <div className="flex flex-wrap gap-1 px-3 py-2 border-b border-border shrink-0">
-            {(Object.keys(SECTION_META) as SectionKey[]).map((key) => {
-              const meta = SECTION_META[key]
-              const Icon = meta.icon
-              const isActive = activeSidebar === key
-              const records = getRecordsForSection(data, key)
-              if (records.length === 0) return null
-              return (
-                <button
-                  key={key}
-                  onClick={() => setActiveSidebar(key)}
-                  className="flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium transition-all"
-                  style={{
-                    background: isActive ? `${meta.color}20` : 'transparent',
-                    color: isActive ? meta.color : 'var(--life-muted)'
-                  }}
-                >
-                  <Icon className="w-3 h-3" />
-                  <span>{meta.label}</span>
-                  <span className="text-[10px] opacity-60">({records.length})</span>
-                </button>
-              )
-            })}
-          </div>
-
-          {/* Records list */}
-          <div className="flex-1 overflow-y-auto p-3 space-y-2">
-            {availableRecords.length === 0 ? (
-              <div className="text-center py-8 text-xs text-muted">
-                {currentRecords.length === 0
-                  ? 'No records. Add data in Resume Sections.'
-                  : 'All records already added to resume.'}
-              </div>
-            ) : (
-              availableRecords.map((record) => {
-                const meta = SECTION_META[activeSidebar]
-                return (
-                  <div
-                    key={record.id}
-                    className="group flex items-center gap-2 px-3 py-2.5 rounded-xl border border-border bg-card hover:border-border-hover hover:shadow-sm transition-all cursor-default"
-                  >
-                    <div
-                      className="w-6 h-6 rounded-md flex items-center justify-center shrink-0"
-                      style={{ background: `${meta.color}15` }}
-                    >
-                      {(() => {
-                        const I = meta.icon
-                        return <I className="w-3 h-3" style={{ color: meta.color }} />
-                      })()}
-                    </div>
-                    <span className="flex-1 text-xs font-medium text-foreground truncate">
-                      {getRecordLabel(activeSidebar, record)}
-                    </span>
+          {activeTab === 'records' ? (
+            <>
+              {/* Section tabs */}
+              <div className="flex flex-wrap gap-1 px-3 py-2 border-b border-border shrink-0">
+                {(Object.keys(SECTION_META) as SectionKey[]).map((key) => {
+                  const meta = SECTION_META[key]
+                  const Icon = meta.icon
+                  const isActive = activeSidebar === key
+                  const records = getRecordsForSection(data, key)
+                  if (records.length === 0) return null
+                  return (
                     <button
-                      onClick={() => addRecordToCanvas(record.id)}
-                      className="opacity-0 group-hover:opacity-100 w-6 h-6 rounded-md flex items-center justify-center transition-all hover:scale-110"
-                      style={{ background: `${meta.color}20`, color: meta.color }}
+                      key={key}
+                      onClick={() => setActiveSidebar(key)}
+                      className="flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium transition-all"
+                      style={{
+                        background: isActive ? `${meta.color}20` : 'transparent',
+                        color: isActive ? meta.color : 'var(--life-muted)'
+                      }}
                     >
-                      <FaPlus className="w-2.5 h-2.5" />
+                      <Icon className="w-3 h-3" />
+                      <span>{meta.label}</span>
+                      <span className="text-[10px] opacity-60">({records.length})</span>
                     </button>
+                  )
+                })}
+              </div>
+
+              {/* Records list */}
+              <div className="flex-1 overflow-y-auto p-3 space-y-2">
+                {availableRecords.length === 0 ? (
+                  <div className="text-center py-8 text-xs text-muted">
+                    {currentRecords.length === 0
+                      ? 'No records. Add data in Resume Sections.'
+                      : 'All records already added to resume.'}
                   </div>
-                )
-              })
-            )}
-          </div>
+                ) : (
+                  availableRecords.map((record) => {
+                    const meta = SECTION_META[activeSidebar]
+                    return (
+                      <div
+                        key={record.id}
+                        className="group flex items-center gap-2 px-3 py-2.5 rounded-xl border border-border bg-card hover:border-border-hover hover:shadow-sm transition-all cursor-default"
+                      >
+                        <div
+                          className="w-6 h-6 rounded-md flex items-center justify-center shrink-0"
+                          style={{ background: `${meta.color}15` }}
+                        >
+                          {(() => {
+                            const I = meta.icon
+                            return <I className="w-3 h-3" style={{ color: meta.color }} />
+                          })()}
+                        </div>
+                        <span className="flex-1 text-xs font-medium text-foreground truncate">
+                          {getRecordLabel(activeSidebar, record)}
+                        </span>
+                        <button
+                          onClick={() => addRecordToCanvas(record.id)}
+                          className="opacity-0 group-hover:opacity-100 w-6 h-6 rounded-md flex items-center justify-center transition-all hover:scale-110"
+                          style={{ background: `${meta.color}20`, color: meta.color }}
+                        >
+                          <FaPlus className="w-2.5 h-2.5" />
+                        </button>
+                      </div>
+                    )
+                  })
+                )}
+              </div>
+            </>
+          ) : (
+            <div className="flex-1 flex flex-col min-h-0">
+              <div className="p-4 border-b border-border shrink-0 flex flex-col gap-2">
+                <input
+                  type="text"
+                  placeholder="New version name..."
+                  value={newVersionName}
+                  onChange={(e) => setNewVersionName(e.target.value)}
+                  className="w-full text-xs px-3 py-2 bg-background border border-border rounded-lg text-foreground focus:border-primary focus:outline-none transition-colors"
+                />
+                <button
+                  onClick={handleSaveVersion}
+                  disabled={!newVersionName.trim()}
+                  className="w-full py-2 bg-primary text-white text-xs font-bold rounded-lg disabled:opacity-50 hover:opacity-90 transition-opacity"
+                >
+                  Save Current Canvas
+                </button>
+              </div>
+
+              <Droppable droppableId="resume-versions" type="VERSION">
+                {(dropProvided) => (
+                  <div
+                    className="flex-1 overflow-y-auto p-3 space-y-2"
+                    ref={dropProvided.innerRef}
+                    {...dropProvided.droppableProps}
+                  >
+                    {versions.length === 0 ? (
+                      <div className="text-center py-8 text-xs text-muted">
+                        No saved versions yet.
+                      </div>
+                    ) : (
+                      versions.map((ver, vIdx) => (
+                        <Draggable key={ver.id} draggableId={`ver-${ver.id}`} index={vIdx}>
+                          {(dragProv, dragSnap) => (
+                            <div
+                              ref={dragProv.innerRef}
+                              {...dragProv.draggableProps}
+                              className={`group bg-card border ${dragSnap.isDragging ? 'border-primary shadow-lg ring-2 ring-primary/20' : 'border-border hover:border-border-hover'} rounded-xl p-3 cursor-pointer transition-all`}
+                              onClick={() => handleLoadVersion(ver)}
+                            >
+                              <div className="flex items-center gap-2 mb-2">
+                                <span
+                                  {...dragProv.dragHandleProps}
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  <FaGripVertical className="w-3 h-3 text-subtle cursor-grab" />
+                                </span>
+                                <span className="flex-1 font-bold text-sm text-foreground truncate">
+                                  {ver.name}
+                                </span>
+                                <button
+                                  onClick={(e) => handleDeleteVersion(e, ver.id)}
+                                  className="text-subtle hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity p-1"
+                                >
+                                  <FaTrash className="w-3 h-3" />
+                                </button>
+                              </div>
+                              <div className="flex justify-between items-center text-[10px] text-muted gap-2">
+                                <span className="truncate">
+                                  Updated {new Date(ver.updatedAt).toLocaleDateString()}
+                                </span>
+                                <button
+                                  onClick={(e) => handleUpdateVersion(e, ver.id)}
+                                  className="px-2 py-1 bg-surface rounded hover:text-primary hover:bg-primary/10 transition-colors border border-border opacity-0 group-hover:opacity-100"
+                                  title="Update with current canvas"
+                                >
+                                  Update
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                        </Draggable>
+                      ))
+                    )}
+                    {dropProvided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            </div>
+          )}
         </aside>
 
         {/* ═══ RIGHT: A4 Canvas ═══ */}

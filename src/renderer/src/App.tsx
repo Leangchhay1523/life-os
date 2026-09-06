@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import Sidebar from './components/Sidebar'
-import Versions from './components/Versions'
 import PomodoroTimer from './components/productivity/PomodoroTimer'
 import WaterReminder from './components/productivity/WaterReminder'
 import ResumeOverview from './components/life/ResumeOverview'
@@ -116,11 +115,11 @@ function App(): React.JSX.Element {
               </header>
             )}
 
-          <div className="flex-1 flex flex-col min-h-0 overflow-hidden">{renderContent()}</div>
-        </div>
-
-        <div className="absolute bottom-4 right-4">
-          <Versions />
+          <div
+            className={`flex-1 flex flex-col min-h-0 ${['resume-sections', 'resume-builder', 'milestones'].includes(activeSection) ? 'overflow-hidden' : ''}`}
+          >
+            {renderContent()}
+          </div>
         </div>
       </main>
 

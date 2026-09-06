@@ -36,6 +36,7 @@ interface SummaryData {
 interface ExperienceItem extends BaseItem {
   company: string
   role: string
+  jobType?: string
   startDate: string
   endDate: string
   location: string
@@ -54,6 +55,7 @@ interface ProjectItem extends BaseItem {
   description: string
   tech: string
   url: string
+  date: string
 }
 interface SkillItem extends BaseItem {
   name: string
@@ -113,9 +115,18 @@ const QUICK_FORMAT: Record<
   }
 > = {
   experience: {
-    fields: ['Role / Title', 'Company', 'Start Date', 'End Date', 'Location', 'Description'],
-    example: 'Senior Engineer, Acme Corp, Jan 2022, Present, Phnom Penh, Built scalable features',
-    hint: 'Dates: "Mon YYYY" or "YYYY" — use "Present" for current role'
+    fields: [
+      'Role / Title',
+      'Job Type',
+      'Company',
+      'Start Date',
+      'End Date',
+      'Location',
+      'Description'
+    ],
+    example:
+      'Senior Engineer, Full-time, Acme Corp, Jan 2022, Present, Phnom Penh, Built scalable features | Mentored juniors',
+    hint: 'Dates: "Mon YYYY" or "YYYY" — use "Present" for current role — Separate description bullets with |'
   },
   education: {
     fields: ['Institution', 'Degree', 'Field of Study', 'Start Year', 'End Year', 'GPA'],
@@ -123,10 +134,10 @@ const QUICK_FORMAT: Record<
     hint: 'GPA is optional — leave blank with an extra comma or omit entirely'
   },
   projects: {
-    fields: ['Project Name', 'Tech Stack', 'URL', 'Description'],
+    fields: ['Project Name', 'Tech Stack', 'URL', 'Date', 'Description'],
     example:
-      'Life OS, React / TypeScript / Electron, https://github.com/..., Personal productivity desktop app',
-    hint: 'URL is optional — leave blank to skip'
+      'Life OS, React / Node, https://github.com/..., Jan 2025, Personal productivity desktop app | Beautiful UI',
+    hint: 'URL and Date are optional (leave blank if needed)'
   },
   skills: {
     fields: ['Skill Name', 'Category'],
@@ -159,9 +170,11 @@ const PROFICIENCY_LEVELS = ['Native', 'Fluent', 'Advanced', 'Intermediate', 'Beg
 const SKILL_LEVELS = ['Novice', 'Beginner', 'Intermediate', 'Advanced', 'Expert']
 const SKILL_CATEGORIES = ['Frontend', 'Backend', 'DevOps', 'Design', 'Data', 'Mobile', 'Other']
 
-const uid = () => Math.random().toString(36).slice(2, 9)
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+const uid = (): string => Math.random().toString(36).slice(2, 9)
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 function Field({
   label,
   value,
@@ -201,6 +214,103 @@ function Field({
   )
 }
 
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+function BulletField({
+  label,
+  value,
+  onChange,
+  placeholder
+}: {
+  label: string
+  value: string
+  onChange: (v: string) => void
+  placeholder?: string
+}) {
+  const points = value ? value.split('\n') : ['']
+
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+  const handleUpdate = (idx: number, newVal: string): void => {
+    const newPoints = [...points]
+    newPoints[idx] = newVal
+    onChange(newPoints.join('\n'))
+  }
+
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+  const handleAdd = (): void => {
+    onChange([...points, ''].join('\n'))
+  }
+
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+  const handleRemove = (idx: number): void => {
+    const newPoints = points.filter((_, i) => i !== idx)
+    if (newPoints.length === 0) newPoints.push('')
+    onChange(newPoints.join('\n'))
+  }
+
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, idx: number): void => {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      const newPoints = [...points]
+      newPoints.splice(idx + 1, 0, '')
+      onChange(newPoints.join('\n'))
+      setTimeout(() => {
+        const inputs = e.currentTarget.parentElement?.parentElement?.querySelectorAll('input')
+        if (inputs && inputs[idx + 1]) {
+          inputs[idx + 1].focus()
+        }
+      }, 0)
+    } else if (e.key === 'Backspace' && points[idx] === '') {
+      e.preventDefault()
+      if (points.length > 1) {
+        handleRemove(idx)
+        setTimeout(() => {
+          const inputs = e.currentTarget.parentElement?.parentElement?.querySelectorAll('input')
+          if (inputs && inputs[idx - 1]) {
+            inputs[idx - 1].focus()
+          }
+        }, 0)
+      }
+    }
+  }
+
+  return (
+    <div className="flex flex-col gap-1.5 focus-within:ring-0">
+      <label className="text-xs font-semibold text-muted uppercase tracking-wide flex items-center justify-between">
+        {label}
+      </label>
+      <div className="space-y-2">
+        {points.map((p, idx) => (
+          <div key={idx} className="flex items-start gap-2">
+            <span className="mt-2 text-muted text-[10px]">●</span>
+            <input
+              type="text"
+              value={p || ''}
+              onChange={(e) => handleUpdate(idx, e.target.value)}
+              onKeyDown={(e) => handleKeyDown(e, idx)}
+              placeholder={placeholder}
+              className="flex-1 px-3 py-1.5 rounded-lg border border-border bg-background text-sm text-foreground placeholder:text-subtle focus:outline-none focus:border-primary transition-colors"
+            />
+            <button
+              onClick={() => handleRemove(idx)}
+              className="mt-1.5 text-muted hover:text-danger p-1"
+            >
+              <FaTimes className="w-3 h-3" />
+            </button>
+          </div>
+        ))}
+        <button
+          onClick={handleAdd}
+          className="text-xs font-medium text-primary hover:opacity-80 flex items-center gap-1 pl-4 mt-1"
+        >
+          <FaPlus className="w-2.5 h-2.5" /> Add bullet point
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 function EmptyState({ label, onAdd }: { label: string; onAdd: () => void }) {
   return (
     <div
@@ -215,6 +325,7 @@ function EmptyState({ label, onAdd }: { label: string; onAdd: () => void }) {
   )
 }
 
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 function SectionBlock({
   id,
   label,
@@ -260,6 +371,7 @@ function SectionBlock({
 }
 
 // ─── Collapsible entry card ───────────────────────────────────────────────────
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 function EntryCard({
   collapsed,
   onToggle,
@@ -309,6 +421,7 @@ function EntryCard({
 }
 
 // ─── Quick Input Panel (single comma-separated input) ────────────────────────
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 function QuickInputPanel({
   sectionId,
   color,
@@ -331,7 +444,7 @@ function QuickInputPanel({
 
   // Map field labels → data keys per section
   const FIELD_KEYS: Record<string, string[]> = {
-    experience: ['role', 'company', 'startDate', 'endDate', 'location', 'description'],
+    experience: ['role', 'jobType', 'company', 'startDate', 'endDate', 'location', 'description'],
     education: ['institution', 'degree', 'field', 'startDate', 'endDate', 'gpa'],
     projects: ['name', 'tech', 'url', 'description'],
     skills: ['name', 'category'],
@@ -343,7 +456,8 @@ function QuickInputPanel({
 
   const keys = FIELD_KEYS[sectionId] || []
 
-  const handleAdd = () => {
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+  const handleAdd = (): void => {
     const parts = raw.split(',').map((s) => s.trim())
     if (parts.filter(Boolean).length < 1) {
       setError('Please fill in at least the first field.')
@@ -360,7 +474,8 @@ function QuickInputPanel({
     setTimeout(() => setSuccess(false), 1800)
   }
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>): void => {
     if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
       e.preventDefault()
       handleAdd()
@@ -529,6 +644,7 @@ function QuickInputPanel({
 }
 
 // ─── Main Component ───────────────────────────────────────────────────────────
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export default function ResumeSections() {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const [activeNav, setActiveNav] = useState('summary')
@@ -553,6 +669,7 @@ export default function ResumeSections() {
     portfolio: ''
   })
   const pi = personalInfo
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   const setPi = (patch: Partial<PersonalInfo>) => setPersonalInfo((p) => ({ ...p, ...patch }))
 
   const [summary, setSummary] = useState<SummaryData>({ text: '' })
@@ -566,6 +683,7 @@ export default function ResumeSections() {
 
   // ── Load/Save data ──────────────────────────────────────────────────────────
   useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
     async function loadData() {
       try {
         const data = await (window as any).api.storeGet('resume-data')
@@ -589,6 +707,7 @@ export default function ResumeSections() {
     loadData()
   }, [])
 
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   const handleSave = async () => {
     setIsSaving(true)
     try {
@@ -630,6 +749,7 @@ export default function ResumeSections() {
     return () => observer.disconnect()
   }, [])
 
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   const scrollTo = (id: string) => {
     const container = scrollContainerRef.current
     const target = container?.querySelector(`#${id}`)
@@ -637,6 +757,7 @@ export default function ResumeSections() {
     setActiveNav(id)
   }
 
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   const handleNavClick = (id: string) => {
     scrollTo(id)
     // Contact & Summary have no quick-add panel
@@ -661,11 +782,14 @@ export default function ResumeSections() {
     setter: React.Dispatch<React.SetStateAction<T[]>>,
     id: string,
     patch: Partial<T>
+    // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   ) => setter((p) => p.map((e) => (e.id === id ? { ...e, ...patch } : e)))
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   const del = <T extends BaseItem>(setter: React.Dispatch<React.SetStateAction<T[]>>, id: string) =>
     setter((p) => p.filter((e) => e.id !== id))
 
   // ── Quick-add handlers ──────────────────────────────────────────────────────
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   const handleQuickAdd = (sectionId: string, values: Record<string, string>) => {
     switch (sectionId) {
       case 'experience':
@@ -675,10 +799,11 @@ export default function ResumeSections() {
             collapsed: false,
             company: values.company || '',
             role: values.role || '',
+            jobType: values.jobType || '',
             startDate: values.startDate || '',
             endDate: values.endDate || '',
             location: values.location || '',
-            description: values.description || ''
+            description: (values.description || '').replace(/\s*\|\s*/g, '\n')
           },
           ...p
         ])
@@ -704,9 +829,10 @@ export default function ResumeSections() {
             id: uid(),
             collapsed: false,
             name: values.name || '',
-            description: values.description || '',
+            description: (values.description || '').replace(/\s*\|\s*/g, '\n'),
             tech: values.tech || '',
-            url: values.url || ''
+            url: values.url || '',
+            date: values.date || ''
           },
           ...p
         ])
@@ -764,6 +890,7 @@ export default function ResumeSections() {
   }
 
   // ── Inline "add empty" fallback ─────────────────────────────────────────────
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   const addExp = () =>
     setExperiences((p) => [
       {
@@ -778,6 +905,7 @@ export default function ResumeSections() {
       },
       ...p
     ])
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   const addEdu = () =>
     setEducations((p) => [
       {
@@ -792,27 +920,32 @@ export default function ResumeSections() {
       },
       ...p
     ])
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   const addProj = () =>
     setProjects((p) => [
-      { id: uid(), collapsed: false, name: '', description: '', tech: '', url: '' },
+      { id: uid(), collapsed: false, name: '', description: '', tech: '', url: '', date: '' },
       ...p
     ])
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   const addSkill = () =>
     setSkills((p) => [
       { id: uid(), collapsed: false, name: '', level: 3, category: 'Frontend' },
       ...p
     ])
 
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   const addCert = () =>
     setCertifications((p) => [
       { id: uid(), collapsed: false, name: '', issuer: '', date: '', url: '' },
       ...p
     ])
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   const addLang = () =>
     setLanguages((p) => [
       { id: uid(), collapsed: false, language: '', proficiency: 'Intermediate' },
       ...p
     ])
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   const addAch = () =>
     setAchievements((p) => [
       { id: uid(), collapsed: false, title: '', description: '', date: '' },
@@ -1099,6 +1232,12 @@ export default function ResumeSections() {
                       placeholder="Senior Engineer"
                     />
                     <Field
+                      label="Job Type"
+                      value={exp.jobType || ''}
+                      onChange={(v) => upd(setExperiences, exp.id, { jobType: v })}
+                      placeholder="Full-time, Internship"
+                    />
+                    <Field
                       label="Start Date"
                       value={exp.startDate}
                       onChange={(v) => upd(setExperiences, exp.id, { startDate: v })}
@@ -1117,12 +1256,11 @@ export default function ResumeSections() {
                     onChange={(v) => upd(setExperiences, exp.id, { location: v })}
                     placeholder="Phnom Penh, Cambodia"
                   />
-                  <Field
-                    label="Description"
+                  <BulletField
+                    label="Description (Bullet Points)"
                     value={exp.description}
                     onChange={(v) => upd(setExperiences, exp.id, { description: v })}
                     placeholder="Key responsibilities and achievements..."
-                    multiline
                   />
                 </EntryCard>
               ))}
@@ -1246,18 +1384,25 @@ export default function ResumeSections() {
                       placeholder="https://github.com/..."
                     />
                   </div>
-                  <Field
-                    label="Tech Stack"
-                    value={proj.tech}
-                    onChange={(v) => upd(setProjects, proj.id, { tech: v })}
-                    placeholder="React, TypeScript, Electron"
-                  />
-                  <Field
-                    label="Description"
+                  <div className="grid grid-cols-2 gap-4">
+                    <Field
+                      label="Tech Stack / Tools"
+                      value={proj.tech}
+                      onChange={(val) => upd(setProjects, proj.id, { tech: val })}
+                      placeholder="React, Node.js, ..."
+                    />
+                    <Field
+                      label="Date (Optional)"
+                      value={proj.date}
+                      onChange={(val) => upd(setProjects, proj.id, { date: val })}
+                      placeholder="e.g. Jan 2025"
+                    />
+                  </div>
+                  <BulletField
+                    label="Description (Bullet Points)"
                     value={proj.description}
                     onChange={(v) => upd(setProjects, proj.id, { description: v })}
-                    placeholder="What it does and your role..."
-                    multiline
+                    placeholder="Project details..."
                   />
                 </EntryCard>
               ))}
