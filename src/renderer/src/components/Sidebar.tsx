@@ -5,7 +5,8 @@ import {
   FaChevronDown,
   FaAngleDoubleLeft,
   FaAngleDoubleRight,
-  FaCogs
+  FaCogs,
+  FaTools
 } from 'react-icons/fa'
 import { useState } from 'react'
 import electronLogo from '../assets/icon.svg'
@@ -51,6 +52,19 @@ const navItems = [
       },
       { id: 'self-awareness', label: 'Self-Awareness' },
       { id: 'milestones', label: 'Milestones (Big Goals)' }
+    ]
+  },
+  {
+    id: 'tools',
+    label: 'Tools',
+    icon: <FaTools className="w-4 h-4 flex-shrink-0" />,
+    color: '#9b8fdb',
+    subItems: [
+      { id: 'tool-calculator', label: 'Calculator' },
+      { id: 'tool-math', label: 'Math & Converters' },
+      { id: 'tool-datetime', label: 'Date & Time' },
+      { id: 'tool-dev', label: 'Developer Utilities' },
+      { id: 'tool-text', label: 'Text & Design' }
     ]
   },
   {

@@ -10,6 +10,11 @@ import Milestones from './components/life/Milestones'
 import SelfAwareness from './components/life/SelfAwareness'
 import HealthDashboard from './components/health/HealthDashboard'
 import Settings from './components/Settings'
+import Calculator from './components/tools/Calculator'
+import MathAndConverters from './components/tools/MathAndConverters'
+import DateTimeTools from './components/tools/DateTimeTools'
+import DeveloperUtils from './components/tools/DeveloperUtils'
+import TextAndDesign from './components/tools/TextAndDesign'
 import { useWaterReminder } from './hooks/useWaterReminder'
 import { FaTint } from 'react-icons/fa'
 
@@ -78,6 +83,16 @@ function App(): React.JSX.Element {
         return <SelfAwareness />
       case 'milestones':
         return <Milestones />
+      case 'tool-calculator':
+        return <Calculator />
+      case 'tool-math':
+        return <MathAndConverters />
+      case 'tool-datetime':
+        return <DateTimeTools />
+      case 'tool-dev':
+        return <DeveloperUtils />
+      case 'tool-text':
+        return <TextAndDesign />
       default:
         return (
           <div className="bg-card border border-border shadow-card rounded-xl p-6 min-h-[400px] flex items-center justify-center">

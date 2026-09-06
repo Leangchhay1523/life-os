@@ -1,19 +1,8 @@
-# Life OS (v1.0.0 - "The Foundation")
+# Life OS
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-v1.0.0-blue.svg)](https://github.com/Leangchhay1523/life-os)
 
 Welcome to **Life OS**, a centralized, elegantly designed Electron application built to systematically orchestrate your daily performance, track your physiological baseline, and plan your long-term life trajectory.
-
----
-
-## What is V1.0.0?
-
-Version 1.0.0 establishes the core foundation of a truly unified operating system for your life. The philosophy behind Life OS is that productivity, health, and macro-level identity are deeply interconnected. To achieve high output, your physical foundation must be solid, your daily tasks strictly blocked, and your trajectory pointed in a direction that aligns with your core values.
-
-V1.0.0 provides the standalone tools across all three pillars, unified under a beautiful, standard user interface, all backed completely by a local-offline JSON database for absolute privacy.
-
-For a deeper dive into the origin philosophy and how these modules connect conceptually, read the [V1.0.0 Story](docs/v1.0.0-story.md).
 
 ---
 
