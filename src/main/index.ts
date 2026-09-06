@@ -1,4 +1,4 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
 import { join } from 'path'
 import { exec } from 'child_process'
 import * as fs from 'fs'
@@ -124,6 +124,37 @@ app.whenReady().then(() => {
 
   ipcMain.handle('store-set', (_, key: string, val: unknown) => {
     store.set(key, val)
+  })
+
+  ipcMain.handle('store-clear', () => {
+    store.clear()
+    return true
+  })
+
+  ipcMain.handle('store-get-size', () => {
+    try {
+      const stats = fs.statSync(store.path)
+      return stats.size
+    } catch {
+      return 0
+    }
+  })
+
+  ipcMain.handle('store-export', async () => {
+    if (!mainWindow) return false
+    const { canceled, filePath } = await dialog.showSaveDialog(mainWindow, {
+      title: 'Export Data',
+      defaultPath: 'life-os-data.db',
+      filters: [{ name: 'Database', extensions: ['db', 'json'] }]
+    })
+    if (canceled || !filePath) return false
+    try {
+      fs.copyFileSync(store.path, filePath)
+      return true
+    } catch (e) {
+      console.error(e)
+      return false
+    }
   })
 
   ipcMain.handle('compile-latex', async (_, latexCode: string) => {

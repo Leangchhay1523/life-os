@@ -9,6 +9,7 @@ import ResumeBuilder from './components/life/ResumeBuilder'
 import Milestones from './components/life/Milestones'
 import SelfAwareness from './components/life/SelfAwareness'
 import HealthDashboard from './components/health/HealthDashboard'
+import Settings from './components/Settings'
 import { useWaterReminder } from './hooks/useWaterReminder'
 import { FaTint } from 'react-icons/fa'
 
@@ -61,6 +62,8 @@ function App(): React.JSX.Element {
         return <HealthDashboard />
       case 'daily-planner':
         return <DailyPlanner />
+      case 'settings':
+        return <Settings />
       case 'pomodoro':
         return <PomodoroTimer />
       case 'water-reminder':
@@ -114,7 +117,9 @@ function App(): React.JSX.Element {
                     activeSection === 'self-awareness' ||
                     activeSection === 'health-dashboard'
                   ? 'p-8 max-w-5xl w-full mx-auto overflow-hidden'
-                  : 'p-8 max-w-4xl w-full mx-auto overflow-y-auto'
+                  : activeSection === 'settings'
+                    ? 'p-8 max-w-4xl w-full mx-auto overflow-hidden'
+                    : 'p-8 max-w-4xl w-full mx-auto overflow-y-auto'
           }`}
         >
           {activeSection !== 'resume-sections' &&

@@ -4,7 +4,8 @@ import {
   FaLeaf,
   FaChevronDown,
   FaAngleDoubleLeft,
-  FaAngleDoubleRight
+  FaAngleDoubleRight,
+  FaCogs
 } from 'react-icons/fa'
 import { useState } from 'react'
 import electronLogo from '../assets/icon.svg'
@@ -51,6 +52,13 @@ const navItems = [
       { id: 'self-awareness', label: 'Self-Awareness' },
       { id: 'milestones', label: 'Milestones (Big Goals)' }
     ]
+  },
+  {
+    id: 'settings',
+    label: 'Settings',
+    icon: <FaCogs className="w-4 h-4 flex-shrink-0" />,
+    color: '#8b8b8b',
+    subItems: []
   }
 ]
 
