@@ -2,10 +2,13 @@ import { useState } from 'react'
 import Sidebar from './components/Sidebar'
 import PomodoroTimer from './components/productivity/PomodoroTimer'
 import WaterReminder from './components/productivity/WaterReminder'
+import DailyPlanner from './components/productivity/DailyPlanner'
 import ResumeOverview from './components/life/ResumeOverview'
 import ResumeSections from './components/life/ResumeSections'
 import ResumeBuilder from './components/life/ResumeBuilder'
 import Milestones from './components/life/Milestones'
+import SelfAwareness from './components/life/SelfAwareness'
+import HealthDashboard from './components/health/HealthDashboard'
 import { useWaterReminder } from './hooks/useWaterReminder'
 import { FaTint } from 'react-icons/fa'
 
@@ -54,6 +57,10 @@ function App(): React.JSX.Element {
 
   const renderContent = () => {
     switch (activeSection) {
+      case 'health-dashboard':
+        return <HealthDashboard />
+      case 'daily-planner':
+        return <DailyPlanner />
       case 'pomodoro':
         return <PomodoroTimer />
       case 'water-reminder':
@@ -64,6 +71,8 @@ function App(): React.JSX.Element {
         return <ResumeSections />
       case 'resume-builder':
         return <ResumeBuilder />
+      case 'self-awareness':
+        return <SelfAwareness />
       case 'milestones':
         return <Milestones />
       default:
@@ -101,7 +110,11 @@ function App(): React.JSX.Element {
               ? 'p-0 w-full overflow-hidden'
               : activeSection === 'pomodoro'
                 ? 'p-8 max-w-4xl w-full mx-auto'
-                : 'p-8 max-w-4xl w-full mx-auto overflow-y-auto'
+                : activeSection === 'daily-planner' ||
+                    activeSection === 'self-awareness' ||
+                    activeSection === 'health-dashboard'
+                  ? 'p-8 max-w-5xl w-full mx-auto overflow-hidden'
+                  : 'p-8 max-w-4xl w-full mx-auto overflow-y-auto'
           }`}
         >
           {activeSection !== 'resume-sections' &&
@@ -116,7 +129,7 @@ function App(): React.JSX.Element {
             )}
 
           <div
-            className={`flex-1 flex flex-col min-h-0 ${['resume-sections', 'resume-builder', 'milestones'].includes(activeSection) ? 'overflow-hidden' : ''}`}
+            className={`flex-1 flex flex-col min-h-0 ${['resume-sections', 'resume-builder', 'milestones', 'daily-planner', 'self-awareness', 'health-dashboard'].includes(activeSection) ? 'overflow-hidden' : ''}`}
           >
             {renderContent()}
           </div>

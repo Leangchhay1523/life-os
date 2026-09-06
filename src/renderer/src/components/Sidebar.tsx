@@ -21,6 +21,7 @@ const navItems = [
     icon: <FaBriefcase className="w-4 h-4 flex-shrink-0" />,
     color: '#6fa0d5',
     subItems: [
+      { id: 'daily-planner', label: 'Daily Planner' },
       { id: 'pomodoro', label: 'Pomodoro Timer' },
       { id: 'water-reminder', label: 'Water Reminder' }
     ]
@@ -30,7 +31,7 @@ const navItems = [
     label: 'Health & Fitness',
     icon: <FaHeartbeat className="w-4 h-4 flex-shrink-0" />,
     color: '#dc7b7b',
-    subItems: [] as { id: string; label: string }[]
+    subItems: [{ id: 'health-dashboard', label: 'Health Dashboard' }]
   },
   {
     id: 'life',
@@ -47,6 +48,7 @@ const navItems = [
           { id: 'resume-builder', label: 'Resume Builder' }
         ]
       },
+      { id: 'self-awareness', label: 'Self-Awareness' },
       { id: 'milestones', label: 'Milestones (Big Goals)' }
     ]
   }
