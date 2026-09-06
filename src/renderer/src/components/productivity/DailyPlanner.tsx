@@ -9,13 +9,15 @@ import {
   FaTint,
   FaClock,
   FaCheckCircle,
-  FaChartPie
+  FaChartPie,
+  FaInfoCircle
 } from 'react-icons/fa'
 
 interface Task {
   id: string
   content: string
   completed: boolean
+  duration: number // e.g. 0.5, 1, 2
 }
 
 interface TimelineSlot {
@@ -27,7 +29,7 @@ interface TimelineSlot {
 const generateEmptySlots = (): TimelineSlot[] => {
   const slots: TimelineSlot[] = []
   for (let hour = 6; hour <= 23; hour++) {
-    for (let min of [0, 30]) {
+    for (const min of [0, 30]) {
       const timeStr = `${hour.toString().padStart(2, '0')}:${min === 0 ? '00' : '30'}`
       slots.push({ id: `slot-${hour}-${min}`, timeLabel: timeStr, taskId: null })
     }
@@ -49,17 +51,12 @@ export default function DailyPlanner() {
       if (!window.electron) return
       const savedTasks = await window.electron.ipcRenderer.invoke('store-get', 'planner-tasks')
       const savedSlots = await window.electron.ipcRenderer.invoke('store-get', 'planner-slots')
-      const savedDate = await window.electron.ipcRenderer.invoke('store-get', 'planner-date')
 
-      const todayStr = new Date().toDateString()
-      if (savedDate !== todayStr) {
-        // New day! Clear the board but keep some tasks if you want, for now clear slots
-        window.electron.ipcRenderer.invoke('store-set', 'planner-date', todayStr)
-        setSlots(generateEmptySlots())
-      } else {
-        if (savedTasks) setTasks(savedTasks)
-        if (savedSlots) setSlots(savedSlots)
+      // Safety check: ensure older tasks missing duration get a default
+      if (savedTasks) {
+        setTasks(savedTasks.map((t: any) => ({ ...t, duration: t.duration || 0.5 })))
       }
+      if (savedSlots) setSlots(savedSlots)
     }
     loadState()
   }, [])
@@ -88,13 +85,19 @@ export default function DailyPlanner() {
     }
 
     if (source.droppableId === 'unassigned-tasks' && destination.droppableId.startsWith('slot-')) {
-      // Trying to drop a task into a slot
       const updatedSlots = [...slots]
       const targetSlotIndex = updatedSlots.findIndex((s) => s.id === destination.droppableId)
+      const task = tasks.find((t) => t.id === draggableId)
+      if (!task) return
 
-      if (updatedSlots[targetSlotIndex].taskId !== null) {
-        // Slot taken, abort
-        return
+      const span = Math.ceil(task.duration / 0.5)
+
+      // Collision check
+      for (let i = 0; i < span; i++) {
+        const checkSlot = updatedSlots[targetSlotIndex + i]
+        if (!checkSlot || checkSlot.taskId !== null) {
+          return // Abort if collides
+        }
       }
 
       updatedSlots[targetSlotIndex].taskId = draggableId
@@ -104,19 +107,38 @@ export default function DailyPlanner() {
 
     if (source.droppableId.startsWith('slot-') && destination.droppableId.startsWith('slot-')) {
       const updatedSlots = [...slots]
-      const sourceSlot = updatedSlots.find((s) => s.id === source.droppableId)
+      const sourceSlotIndex = updatedSlots.findIndex((s) => s.id === source.droppableId)
       const destSlotIndex = updatedSlots.findIndex((s) => s.id === destination.droppableId)
+      const sourceSlot = updatedSlots[sourceSlotIndex]
+      const taskId = sourceSlot.taskId
+      if (!taskId) return
 
-      if (updatedSlots[destSlotIndex].taskId !== null || !sourceSlot) return
+      const task = tasks.find((t) => t.id === taskId)
+      if (!task) return
 
-      updatedSlots[destSlotIndex].taskId = sourceSlot.taskId
-      sourceSlot.taskId = null
+      // We allow self-drop to do nothing
+      if (sourceSlotIndex === destSlotIndex) return
+
+      const span = Math.ceil(task.duration / 0.5)
+
+      // Collision check
+      for (let i = 0; i < span; i++) {
+        const checkIndex = destSlotIndex + i
+        if (!updatedSlots[checkIndex]) return
+        const slotOccupantId = updatedSlots[checkIndex].taskId
+        if (slotOccupantId !== null && slotOccupantId !== taskId) {
+          return // Collision with another task
+        }
+      }
+
+      // Safe to move
+      updatedSlots[sourceSlotIndex].taskId = null
+      updatedSlots[destSlotIndex].taskId = taskId
       setSlots(updatedSlots)
       return
     }
 
     if (source.droppableId.startsWith('slot-') && destination.droppableId === 'unassigned-tasks') {
-      // Remove from slot
       const updatedSlots = [...slots]
       const sourceSlot = updatedSlots.find((s) => s.id === source.droppableId)
       if (sourceSlot) sourceSlot.taskId = null
@@ -128,7 +150,22 @@ export default function DailyPlanner() {
   const handleAddTask = (e: React.FormEvent) => {
     e.preventDefault()
     if (!newTaskInput.trim()) return
-    setTasks([...tasks, { id: uid(), content: newTaskInput.trim(), completed: false }])
+
+    let content = newTaskInput.trim()
+    let parsedDuration = 0.5 // Default 30 min (1 slot)
+
+    // Parse comma for duration (e.g. "Read book, 2")
+    if (content.includes(',')) {
+      const parts = content.split(',')
+      const lastPart = parts[parts.length - 1].trim()
+      const possibleNum = parseFloat(lastPart)
+      if (!isNaN(possibleNum) && possibleNum > 0) {
+        parsedDuration = possibleNum
+        content = parts.slice(0, -1).join(',').trim()
+      }
+    }
+
+    setTasks([...tasks, { id: uid(), content, completed: false, duration: parsedDuration }])
     setNewTaskInput('')
   }
 
@@ -141,25 +178,29 @@ export default function DailyPlanner() {
     setSlots(slots.map((s) => (s.taskId === taskId ? { ...s, taskId: null } : s)))
   }
 
-  // Derived Review Stats
+  // Derived Stats
   const todayDateStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-  const totalPlannedTimeSlots = slots.filter((s) => s.taskId !== null).length
+  // Count exact slots planned using durations
+  let totalPlannedTimeSlots = 0
+  for (const s of slots) {
+    if (s.taskId) {
+      const t = tasks.find((x) => x.id === s.taskId)
+      if (t) totalPlannedTimeSlots += Math.ceil(t.duration / 0.5)
+    }
+  }
+
   const totalPlannedHours = Math.floor(totalPlannedTimeSlots / 2)
   const totalPlannedMins = (totalPlannedTimeSlots % 2) * 30
-
   const completedTasks = tasks.filter((t) => t.completed).length
   const totalTasks = tasks.length
-
-  const getTaskContent = (id: string) => tasks.find((t) => t.id === id)?.content || 'Unknown'
-  const isTaskCompleted = (id: string) => tasks.find((t) => t.id === id)?.completed || false
 
   return (
     <div className="flex flex-col h-full overflow-hidden text-foreground">
       {/* Header */}
-      <div className="flex items-center justify-between pb-4 border-b border-border mb-6">
+      <div className="flex items-center justify-between pb-4 border-b border-border mb-6 shrink-0">
         <div>
           <h2 className="text-3xl font-bold tracking-tight text-primary">TODAY — {todayDateStr}</h2>
-          <p className="text-muted mt-1">Drag your tasks into your timeline to plan your day.</p>
+          <p className="text-muted mt-1">Drag your tasks into your timeline to block your time.</p>
         </div>
         <button
           onClick={() => setShowReview(true)}
@@ -177,17 +218,30 @@ export default function DailyPlanner() {
               <FaCheckCircle className="text-primary" /> Task Pool
             </h3>
 
+            {tasks.length === 0 && (
+              <div className="mb-4 bg-primary/10 border border-primary/20 p-3 rounded-xl flex gap-3 text-sm text-foreground">
+                <FaInfoCircle className="text-primary mt-0.5 shrink-0" />
+                <p>
+                  Add a task below. You can include hours using a comma, e.g.{' '}
+                  <span className="font-bold bg-background px-1 rounded text-primary">
+                    Write code, 2.5
+                  </span>
+                </p>
+              </div>
+            )}
+
             <form onSubmit={handleAddTask} className="flex gap-2 mb-4 shrink-0">
               <input
                 type="text"
                 value={newTaskInput}
                 onChange={(e) => setNewTaskInput(e.target.value)}
-                placeholder="Add a new task..."
+                placeholder="e.g., Deep Work, 2"
                 className="flex-1 px-3 py-2 bg-background border border-border rounded-xl text-sm focus:outline-none focus:border-primary"
               />
               <button
                 type="submit"
                 className="w-10 h-10 bg-primary hover:bg-primary-hover text-white rounded-xl flex items-center justify-center transition-colors"
+                title="Add Task"
               >
                 <FaPlus />
               </button>
@@ -202,8 +256,6 @@ export default function DailyPlanner() {
                 >
                   {tasks.map((task, index) => {
                     const isPlaced = slots.some((s) => s.taskId === task.id)
-                    // If a task is placed in the timeline, we still show it here but greyed out?
-                    // No, usually it's better to show all tasks here as a checklist.
                     return (
                       <Draggable key={task.id} draggableId={task.id} index={index}>
                         {(provided, snapshot) => (
@@ -227,15 +279,18 @@ export default function DailyPlanner() {
 
                             <button
                               onClick={() => toggleTaskCompletion(task.id)}
-                              className={`w-5 h-5 rounded border flex items-center justify-center shrink-0 ${task.completed ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-muted hover:border-primary'}`}
+                              className={`w-5 h-5 rounded border flex items-center justify-center shrink-0 transition-colors ${task.completed ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-muted hover:border-primary bg-background'}`}
                             >
                               {task.completed && <FaCheck className="w-3 h-3" />}
                             </button>
 
                             <span
-                              className={`flex-1 text-sm ${task.completed ? 'line-through text-muted' : ''} ${isPlaced ? 'text-muted' : ''}`}
+                              className={`flex-1 text-sm ${task.completed ? 'line-through text-muted' : ''} ${isPlaced && !task.completed ? 'text-subtle' : ''}`}
                             >
                               {task.content}
+                              <span className="inline-block ml-2 text-xs font-semibold px-1.5 py-0.5 rounded bg-surface border border-border text-primary/80">
+                                {task.duration}h
+                              </span>
                             </span>
 
                             <button
@@ -250,11 +305,6 @@ export default function DailyPlanner() {
                     )
                   })}
                   {provided.placeholder}
-                  {tasks.length === 0 && (
-                    <div className="text-center p-8 border-2 border-dashed border-border rounded-xl text-subtle text-sm">
-                      Your task pool is empty. Add a task to start planning!
-                    </div>
-                  )}
                 </div>
               )}
             </Droppable>
@@ -269,17 +319,38 @@ export default function DailyPlanner() {
               <div className="text-xs font-semibold text-muted bg-background px-3 py-1 rounded-full border border-border">
                 {totalPlannedTimeSlots > 0
                   ? `${totalPlannedHours}h ${totalPlannedMins}m planned`
-                  : 'No time planned'}
+                  : 'Slot unused space'}
               </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4 space-y-1 relative">
+            <div className="flex-1 overflow-y-auto p-4 space-y-1 relative pr-4">
               {/* Timeline continuous vertical line */}
               <div className="absolute left-[70px] top-4 bottom-4 w-px bg-border/60 z-0 content-['']" />
 
-              {slots.map((slot) => {
+              {slots.map((slot, index) => {
                 const hour = parseInt(slot.timeLabel.split(':')[0])
                 const isFullHour = slot.timeLabel.endsWith(':00')
+
+                // Multi-slot hidden logic
+                let isHidden = false
+                for (let prev = Math.max(0, index - 8); prev < index; prev++) {
+                  const pSlot = slots[prev]
+                  if (pSlot.taskId) {
+                    const t = tasks.find((x) => x.id === pSlot.taskId)
+                    if (t) {
+                      const span = Math.ceil(t.duration / 0.5)
+                      if (index < prev + span) {
+                        isHidden = true
+                        break
+                      }
+                    }
+                  }
+                }
+
+                if (isHidden) return null
+
+                const occupantTask = slot.taskId ? tasks.find((t) => t.id === slot.taskId) : null
+                const spanCount = occupantTask ? Math.ceil(occupantTask.duration / 0.5) : 1
 
                 return (
                   <Droppable key={slot.id} droppableId={slot.id}>
@@ -287,51 +358,62 @@ export default function DailyPlanner() {
                       <div
                         ref={provided.innerRef}
                         {...provided.droppableProps}
-                        className={`flex items-stretch min-h-[44px] group relative z-10 ${snapshot.isDraggingOver ? 'bg-primary/5 rounded-xl ring-1 ring-primary/30' : ''}`}
+                        className={`flex items-stretch group relative z-10 ${snapshot.isDraggingOver ? 'bg-primary/5 rounded-xl ring-1 ring-primary/30' : ''}`}
+                        style={{
+                          height: `${spanCount * 44 + (spanCount - 1) * 4}px`,
+                          minHeight: '44px'
+                        }}
                       >
                         <div
-                          className={`w-[72px] shrink-0 flex items-center pr-4 text-xs font-semibold ${isFullHour ? 'text-foreground' : 'text-subtle'}`}
+                          className={`w-[72px] shrink-0 flex items-start pt-3 pr-4 text-xs font-semibold ${isFullHour ? 'text-foreground' : 'text-subtle'}`}
                         >
                           {slot.timeLabel}
                         </div>
 
-                        <div className="relative flex items-center justify-center shrink-0 w-2 mr-3">
+                        <div className="relative flex items-start justify-center shrink-0 w-2 mr-3 pt-3">
                           <div
                             className={`w-2 h-2 rounded-full border-2 ${isFullHour ? 'border-primary bg-background' : 'border-border bg-border'} z-10 transition-colors group-hover:border-primary-hover`}
                           />
                         </div>
 
-                        <div className="flex-1 py-1">
-                          {slot.taskId ? (
+                        <div className="flex-1 h-full pb-1">
+                          {slot.taskId && occupantTask ? (
                             <Draggable draggableId={`timeline-${slot.taskId}-${slot.id}`} index={0}>
                               {(dragProvided, dragSnapshot) => (
                                 <div
                                   ref={dragProvided.innerRef}
                                   {...dragProvided.draggableProps}
                                   {...dragProvided.dragHandleProps}
-                                  className={`px-4 py-2 rounded-xl text-sm border shadow-sm flex items-center gap-3 transition-colors ${
+                                  className={`w-full h-full px-4 rounded-xl text-sm border shadow-sm flex items-center gap-3 transition-colors ${
                                     dragSnapshot.isDragging
-                                      ? 'bg-background border-primary scale-[1.02] z-50 shadow-md'
-                                      : isTaskCompleted(slot.taskId!)
+                                      ? 'bg-background border-primary scale-[1.02] z-50 shadow-lg ring-4 ring-primary/20'
+                                      : occupantTask.completed
                                         ? 'bg-surface border-border text-muted opacity-80'
-                                        : 'bg-primary/10 border-primary/20 text-foreground hover:bg-primary/15'
+                                        : 'bg-primary/10 border-primary/20 text-foreground hover:border-primary/50'
                                   }`}
                                 >
-                                  {isTaskCompleted(slot.taskId!) ? (
-                                    <FaCheckCircle className="text-emerald-500 shrink-0" />
+                                  {occupantTask.completed ? (
+                                    <FaCheckCircle className="text-emerald-500 shrink-0 text-xl" />
                                   ) : (
-                                    <div className="w-1.5 h-1.5 bg-primary rounded-full shrink-0" />
+                                    <div className="w-2 h-2 bg-primary rounded-full shrink-0 ml-1 mr-1 shadow-[0_0_8px_rgba(var(--primary),0.5)]" />
                                   )}
-                                  <span
-                                    className={`flex-1 truncate ${isTaskCompleted(slot.taskId!) ? 'line-through' : ''}`}
-                                  >
-                                    {getTaskContent(slot.taskId!)}
-                                  </span>
+                                  <div className="flex-1 min-w-0">
+                                    <p
+                                      className={`font-bold truncate ${occupantTask.completed ? 'line-through' : ''}`}
+                                    >
+                                      {occupantTask.content}
+                                    </p>
+                                    {occupantTask.duration > 0.5 && (
+                                      <p className="text-xs font-medium text-primary/70">
+                                        {occupantTask.duration * 60} minutes
+                                      </p>
+                                    )}
+                                  </div>
                                 </div>
                               )}
                             </Draggable>
                           ) : (
-                            <div className="h-full w-full border border-transparent rounded-xl flex items-center px-4 text-xs text-transparent group-hover:bg-surface/30 group-hover:text-muted transition-colors">
+                            <div className="h-full w-full border-2 border-dashed border-transparent rounded-xl flex items-center justify-center px-4 text-xs text-transparent group-hover:border-border/50 group-hover:text-muted transition-colors">
                               Drop task here...
                             </div>
                           )}
@@ -371,17 +453,16 @@ export default function DailyPlanner() {
 
               <div className="bg-surface rounded-xl p-4 border border-border">
                 <div className="text-subtle text-xs font-bold uppercase tracking-wider mb-1 flex items-center gap-1.5">
-                  <FaCheck /> Completed Tasks
+                  <FaCheck /> Completed
                 </div>
                 <div className="text-xl font-bold text-emerald-500">
                   {completedTasks} <span className="text-subtle text-sm">/ {totalTasks}</span>
                 </div>
               </div>
 
-              {/* Simulated Stats for OS feel */}
               <div className="bg-surface rounded-xl p-4 border border-border">
                 <div className="text-subtle text-xs font-bold uppercase tracking-wider mb-1 flex items-center gap-1.5">
-                  <FaChartPie /> Focus Sessions
+                  <FaChartPie /> Sessions
                 </div>
                 <div className="text-xl font-bold text-foreground">
                   8 <span className="text-subtle text-sm">sessions</span>

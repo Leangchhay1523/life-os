@@ -1,95 +1,63 @@
-# LifeOS
+# Life OS (v1.0.0)
 
-A personal desktop application for managing, tracking, and understanding different aspects of your life.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Version](https://img.shields.io/badge/version-v1.0.0-blue.svg)](https://github.com/Leangchhay1523/life-os)
 
-LifeOS is designed to grow over time as you discover new things you want to track or manage. The current focus is a **local Windows desktop application** featuring offline productivity tools, goal tracking, and an integrated algorithmic Resume Builder with native LaTeX PDF compilation.
-
----
-
-## 🌟 Current Features
-
-- **Pomodoro Timer:** A customizable focus/break timer for deep work sessions.
-- **Water Reminder:** An OS-level overlay prompt that nudges you to hydrate at regular intervals.
-- **Milestones (Big Goals):** An interactive visual timeline to capture and review your life's greatest achievements.
-- **Resume Builder:** A full algorithmic LaTeX compiler suite that manages your professional records (Experience, Projects, Education) and beautifully compiles them directly into a PDF offline.
-
-> **Note:** We have massive plans for LifeOS! To see upcoming features (like Task tracking, Habit streaks, and Health logs), check out our full [Development Roadmap](docs/ROADMAP.md).
+Welcome to **Life OS**, a centralized, elegantly designed Electron application built to systematically orchestrate your daily performance, track your physiological baseline, and plan your long-term life trajectory.
 
 ---
 
-## 🛠️ Tech Stack
+## What is V1.0.0?
 
-- **Electron** — Desktop runtime wrapping
-- **React** — User interface components
-- **TypeScript** — Core application language and type safety
-- **Vite** — Fast development and module bundling
-- **Node.js** — Backend IPC logic and local file interactions
-- **Tailwind CSS** — Utility-first styling
-- **electron-store** — Persistent local database JSON storage
+Version 1.0.0 establishes the core foundation of a truly unified operating system for your life. The philosophy behind Life OS is that productivity, health, and macro-level identity are deeply interconnected. To achieve high output, your physical foundation must be solid, your daily tasks strictly blocked, and your trajectory pointed in a direction that aligns with your core values.
 
-### Architecture Overview
+V1.0.0 provides the standalone tools across all three pillars, unified under a beautiful, standard user interface, all backed completely by a local-offline JSON database for absolute privacy.
 
-```text
-LifeOS
-│
-├── Electron Main Process (Node.js)
-│   └── System interactions, local file writes, LaTeX execution
-│
-└── Electron Renderer (React + TypeScript)
-    └── UI Dashboard, state management, drag-and-drop
-```
+For a deeper dive into the origin philosophy and how these modules connect conceptually, read the [V1.0.0 Story](docs/v1.0.0-story.md).
 
 ---
 
-## 🚀 Getting Started
+## Core Features
 
-To run LifeOS locally on your machine, follow these steps:
+- 📅 **Daily Planner**: A time-blocking timeline featuring Drag-and-Drop capability. Block out spans of hours natively and protect against schedule collisions.
+- ⏱️ **Pomodoro Timer**: A completely configurable deep-work sprint system.
+- 💧 **Water Reminder**: An aggressive screen-takeover mechanic that ensures hydration tracking while deeply focused.
+- 📈 **Health Dashboard**: Log and visualize your Sleep, Hydration, Calories, and Weight across interactive charts to track progress.
+- 🧠 **Self-Awareness Hub**: A tabbed journaling utility for identifying your Vision, Mission, Values, Strengths, and Weaknesses.
+- 🚩 **Milestones Tracker**: A timeline interface to document and celebrate massive life achievements and project launches.
+- 📄 **Resume Builder**: An integrated LaTeX engine to systematically compile your experiences and skills into formatted PDF resumes automatically.
+- 💾 **Data Management**: Complete privacy and portability via local `.db` file database compilation.
 
-### Prerequisites
-
-You will need Node.js installed on your machine. If you want to use the automated **Resume to PDF** compiler, you must also have `pdflatex` (MiKTeX or TeX Live) installed and registered in your system `PATH`.
-
-### Installation
-
-1. Install dependencies:
-
-```bash
-npm install
-```
-
-2. Start the development server:
-
-```bash
-npm run dev
-```
-
-### Build for Windows
-
-To compile LifeOS into a distributable `.exe` file:
-
-```bash
-npm run build:win
-```
+_Want to know exactly how to integrate these modules into a cohesive daily workflow? Read our complete [Official User Guide](docs/user-guide.md)!_
 
 ---
 
-## 💡 Project Principles
+## Technology Stack
 
-- **Local First** — Your personal data is stored directly on your hard drive, never in the cloud.
-- **Completely Private** — All personal information remains strictly under your control.
-- **Extensible** — New life-tracking modules are easy to plug into the React Sidebar router.
-- **Useful Over Complex** — We build features because they solve real, tangible life problems.
-- **Data Ownership** — Personal data should be easily exportable and perpetually accessible.
+Life OS is built on modern, lightning-fast web technologies wrapped for desktop:
 
----
-
-## 🤝 Contributing
-
-Contributions, issues, and feature requests are highly welcome!
-Since LifeOS is built on a modular "App" structure within the sidebar, creating a completely new productivity tool or calendar tracker is incredibly easy. Feel free to clone the repo, build a cool widget, and open a Pull Request.
+- **Core Engine:** [Electron](https://www.electronjs.org/) (Main & Renderer process)
+- **Frontend Framework:** [React](https://reactjs.org/) + [Vite](https://vitejs.dev/)
+- **Styling:** CSS + [Tailwind CSS](https://tailwindcss.com/)
+- **Datastore:** `electron-store` (Local filesystem JSON)
+- **Charting & Utilities:** `recharts`, `@hello-pangea/dnd`
 
 ---
 
-## 📄 License
+## Contributing
 
-This project is open-source and available under the standard MIT License.
+This project is actively maintained by [@Leangchhay1523](https://github.com/Leangchhay1523) and is completely **open for contributions**!
+
+Whether you want to implement deep module interconnectivity, refine the CSS gradient animations, or squash bugs, we would love to see your pulls.
+
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+---
+
+## License
+
+Distributed under the MIT License. See `LICENSE` for more information.

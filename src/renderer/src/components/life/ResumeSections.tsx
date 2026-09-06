@@ -170,7 +170,6 @@ const PROFICIENCY_LEVELS = ['Native', 'Fluent', 'Advanced', 'Intermediate', 'Beg
 const SKILL_LEVELS = ['Novice', 'Beginner', 'Intermediate', 'Advanced', 'Expert']
 const SKILL_CATEGORIES = ['Frontend', 'Backend', 'DevOps', 'Design', 'Data', 'Mobile', 'Other']
 
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 const uid = (): string => Math.random().toString(36).slice(2, 9)
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -228,26 +227,22 @@ function BulletField({
 }) {
   const points = value ? value.split('\n') : ['']
 
-  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   const handleUpdate = (idx: number, newVal: string): void => {
     const newPoints = [...points]
     newPoints[idx] = newVal
     onChange(newPoints.join('\n'))
   }
 
-  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   const handleAdd = (): void => {
     onChange([...points, ''].join('\n'))
   }
 
-  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   const handleRemove = (idx: number): void => {
     const newPoints = points.filter((_, i) => i !== idx)
     if (newPoints.length === 0) newPoints.push('')
     onChange(newPoints.join('\n'))
   }
 
-  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, idx: number): void => {
     if (e.key === 'Enter') {
       e.preventDefault()
@@ -456,7 +451,6 @@ function QuickInputPanel({
 
   const keys = FIELD_KEYS[sectionId] || []
 
-  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   const handleAdd = (): void => {
     const parts = raw.split(',').map((s) => s.trim())
     if (parts.filter(Boolean).length < 1) {
@@ -474,7 +468,6 @@ function QuickInputPanel({
     setTimeout(() => setSuccess(false), 1800)
   }
 
-  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>): void => {
     if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
       e.preventDefault()
