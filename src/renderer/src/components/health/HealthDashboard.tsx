@@ -77,8 +77,7 @@ export default function HealthDashboard() {
     setTodayLog({ ...todayLog, [field]: value })
   }
 
-  // Calculate Mock/Real Trends
-  const thisMonthLogs = history.filter((h) => h.date.startsWith(getTodayStr().substring(0, 7)))
+  // Prepare stats
 
   // Simulated averages if history lacks data
   const renderTrend = (

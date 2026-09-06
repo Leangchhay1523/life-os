@@ -328,7 +328,6 @@ export default function DailyPlanner() {
               <div className="absolute left-[70px] top-4 bottom-4 w-px bg-border/60 z-0 content-['']" />
 
               {slots.map((slot, index) => {
-                const hour = parseInt(slot.timeLabel.split(':')[0])
                 const isFullHour = slot.timeLabel.endsWith(':00')
 
                 // Multi-slot hidden logic
