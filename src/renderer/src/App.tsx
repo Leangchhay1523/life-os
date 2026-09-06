@@ -118,7 +118,7 @@ function App(): React.JSX.Element {
                   ? 'p-8 max-w-5xl w-full mx-auto overflow-hidden'
                   : activeSection === 'settings'
                     ? 'p-8 max-w-4xl w-full mx-auto overflow-hidden'
-                    : 'p-8 max-w-4xl w-full mx-auto overflow-y-auto'
+                    : 'p-8 pb-16 max-w-4xl w-full mx-auto overflow-y-auto no-scrollbar'
           }`}
         >
           {activeSection !== 'resume-sections' && activeSection !== 'resume-builder' && (

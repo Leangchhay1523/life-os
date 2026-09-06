@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import {
   FaBriefcase,
   FaGraduationCap,
@@ -12,14 +13,14 @@ import {
   FaLightbulb
 } from 'react-icons/fa'
 
-const sections = [
+const DEFAULT_SECTIONS = [
   { id: 'summary', label: 'Summary', icon: FaAlignLeft, color: '#6fa0d5', count: 0, total: 1 },
   {
     id: 'experience',
     label: 'Experience',
     icon: FaBriefcase,
     color: '#70b68c',
-    count: 2,
+    count: 0,
     total: 5
   },
   {
@@ -27,21 +28,21 @@ const sections = [
     label: 'Education',
     icon: FaGraduationCap,
     color: '#d5a85f',
-    count: 1,
+    count: 0,
     total: 2
   },
-  { id: 'projects', label: 'Projects', icon: FaCode, color: '#9b8fdb', count: 3, total: 6 },
-  { id: 'skills', label: 'Skills', icon: FaStar, color: '#dc7b7b', count: 8, total: 10 },
-  { id: 'contact', label: 'Contact', icon: FaPhone, color: '#5bbfb5', count: 3, total: 5 },
+  { id: 'projects', label: 'Projects', icon: FaCode, color: '#9b8fdb', count: 0, total: 5 },
+  { id: 'skills', label: 'Skills', icon: FaStar, color: '#dc7b7b', count: 0, total: 10 },
+  { id: 'contact', label: 'Contact', icon: FaPhone, color: '#5bbfb5', count: 0, total: 5 },
   {
     id: 'certifications',
     label: 'Certifications',
     icon: FaCertificate,
     color: '#c9954c',
-    count: 1,
+    count: 0,
     total: 3
   },
-  { id: 'languages', label: 'Languages', icon: FaGlobe, color: '#8fc96b', count: 2, total: 4 },
+  { id: 'languages', label: 'Languages', icon: FaGlobe, color: '#8fc96b', count: 0, total: 3 },
   {
     id: 'achievements',
     label: 'Achievements',
@@ -53,12 +54,64 @@ const sections = [
 ]
 
 export default function ResumeOverview() {
+  const [sections, setSections] = useState(DEFAULT_SECTIONS)
+  const [personalInfo, setPersonalInfo] = useState({
+    name: 'Your Name',
+    jobTitle: 'Your Job Title',
+    city: 'Your City'
+  })
+
+  // Load real data
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const data = await (window as any).api.storeGet('resume-data')
+        if (data) {
+          if (data.personalInfo) {
+            setPersonalInfo({
+              name: data.personalInfo.name || 'Your Name',
+              jobTitle: data.personalInfo.jobTitle || 'Your Job Title',
+              city: data.personalInfo.city || 'Your City'
+            })
+          }
+
+          setSections((prev) =>
+            prev.map((sec) => {
+              let count = 0
+              if (sec.id === 'summary' && data.summary?.text?.length > 0) count = 1
+              if (sec.id === 'experience' && data.experiences) count = data.experiences.length
+              if (sec.id === 'education' && data.educations) count = data.educations.length
+              if (sec.id === 'projects' && data.projects) count = data.projects.length
+              if (sec.id === 'skills' && data.skills) count = data.skills.length
+              if (sec.id === 'contact' && data.personalInfo) {
+                const p = data.personalInfo
+                const filled = [p.email, p.phone, p.linkedin, p.github, p.portfolio].filter(
+                  (x) => !!x
+                ).length
+                count = filled
+              }
+              if (sec.id === 'certifications' && data.certifications)
+                count = data.certifications.length
+              if (sec.id === 'languages' && data.languages) count = data.languages.length
+              if (sec.id === 'achievements' && data.achievements) count = data.achievements.length
+
+              return { ...sec, count }
+            })
+          )
+        }
+      } catch (err) {
+        console.error('Failed to load resume overview data', err)
+      }
+    }
+    loadData()
+  }, [])
+
   const totalFilled = sections.reduce((acc, s) => acc + s.count, 0)
   const totalPossible = sections.reduce((acc, s) => acc + s.total, 0)
-  const overallPercent = Math.round((totalFilled / totalPossible) * 100)
+  const overallPercent = Math.min(100, Math.round((totalFilled / totalPossible) * 100)) || 0
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 pb-12">
       {/* Hero Banner */}
       <div
         className="relative rounded-2xl overflow-hidden p-8"
@@ -75,10 +128,12 @@ export default function ResumeOverview() {
             <FaUser className="text-4xl text-white" />
           </div>
           <div className="flex-1 text-white">
-            <h2 className="text-2xl font-bold mb-1">Your Name</h2>
-            <p className="text-white/70 text-sm mb-4">Your Job Title · Your City</p>
+            <h2 className="text-2xl font-bold mb-1">{personalInfo.name}</h2>
+            <p className="text-white/70 text-sm mb-4">
+              {personalInfo.jobTitle} · {personalInfo.city}
+            </p>
             <div className="flex items-center gap-3">
-              <div className="flex-1 h-2 rounded-full bg-white/20">
+              <div className="flex-1 h-2 rounded-full bg-white/20 overflow-hidden">
                 <div
                   className="h-full rounded-full bg-white transition-all duration-700"
                   style={{ width: `${overallPercent}%` }}
@@ -109,7 +164,8 @@ export default function ResumeOverview() {
         <div className="grid grid-cols-3 gap-4">
           {sections.map((section) => {
             const Icon = section.icon
-            const pct = Math.round((section.count / section.total) * 100)
+            const rawPct = (section.count / section.total) * 100
+            const pct = Math.min(100, Math.round(rawPct)) || 0
             const isComplete = pct === 100
             const isEmpty = section.count === 0
 
@@ -143,7 +199,7 @@ export default function ResumeOverview() {
                 <p className="text-xs text-muted mb-3">
                   {section.count} / {section.total} items
                 </p>
-                <div className="h-1.5 rounded-full bg-border">
+                <div className="h-1.5 rounded-full bg-border overflow-hidden">
                   <div
                     className="h-full rounded-full transition-all duration-500"
                     style={{ width: `${pct}%`, background: section.color }}

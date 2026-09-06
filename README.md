@@ -1,4 +1,4 @@
-# Life OS (v1.0.0)
+# Life OS (v1.0.0 - "The Foundation")
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Version](https://img.shields.io/badge/version-v1.0.0-blue.svg)](https://github.com/Leangchhay1523/life-os)
